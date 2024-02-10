@@ -1,12 +1,12 @@
 class Node():
-    def __init__(self, state, parent, parent_movie, action,level):
+    def __init__(self, state, parent, parent_movie, movie_children,level):
         self.state = state
         self.parent = parent
         self.parent_movie= parent_movie
         #
         # self.parent_movie= parent_movie change this in the degree
         #
-        self.action = action
+        self.movie_children = movie_children
         self.level=level
 
 
