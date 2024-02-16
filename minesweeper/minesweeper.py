@@ -105,6 +105,7 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
+
         raise NotImplementedError
 
     def known_safes(self):
@@ -118,6 +119,11 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
+        # Removing mine cells from the sentence and
+        # reducing it's count by 1 per cell removed
+        if cell in self.cells:
+            self.cells.discard(mine)
+            self.count -= 1
         raise NotImplementedError
 
     def mark_safe(self, cell):
@@ -125,7 +131,11 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        # Removing the safe cell from the sentence, if it's there
+        if cell in self.cells:
+            self.cells.discard(cell)
+        
+        #raise NotImplementedError
 
 
 class MinesweeperAI():
@@ -167,6 +177,59 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
 
+    
+    def quick_check(self,cells,counts):
+        """
+        # student made custom function made to improve the functions efficience by making 
+        quick checks to a sentence that was just modified, thus reducing te number  
+        of times the knowledge would loop throught all sentences to check them
+        """
+
+        # Removing safe cells from the sentence
+        if len(self.safes) != 0:
+            for safe in self.safes:
+                if safe in cells:
+                    cells.discard(safe)
+
+        # Removing mine cells from the sentence and
+        # reducing it's count by 1 per cell removed
+        if len(self.mines) != 0:
+            for mine in self.mines:
+                if mine in cells:
+                    cells.discard(mine)
+                    counts -= 1
+
+        # checking what new knowledge can be obtained from the actions above
+                    
+            # mark_safe and mark_mine will loop and modify the sentence list, 
+            # doing that inside a loop that is reading the seentence could lead to error,
+            # instead, it will be saved and the mark function will be called after the loops.
+        mines_found = []
+        safes_found = []
+
+                
+        # checking if the sentence only contains mines
+        if len(cells) == counts:
+            for mine in cells.copy():
+                mines_found.append(mine)
+                counts -= 1
+                cells.discard(mine)
+
+        # checking if sentences has only safe cells
+        elif cells and counts == 0:
+            for safe in cells.copy():
+                safes_found.append(safe)
+                cells.discard(safe)
+        
+        # if mines or safes were found, loop in them calling the mark function
+        if mines_found:
+            for mine in mines_found:
+                self.mark_mine(mine)
+        
+        if safes_found:
+            for safe in mines_found:
+                self.mark_safe(safe)
+
     def add_knowledge(self, cell, count):
         """
         Called when the Minesweeper board tells us, for a given
@@ -182,6 +245,96 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+
+        # TODO
+        """
+        Marks the cell to the set of moves_made
+        """
+        self.moves_made.add(cell)
+
+        """
+        Marks the cell as safe
+        """
+        self.mark_safe(cell)
+
+        """
+        add a new sentence to the knowledge base
+        """
+        surrounding_cells=set()
+
+        # get the surrounding cells
+        for i in range(cell[0] - 1, cell[0] + 2):
+            for j in range(cell[1] - 1, cell[1] + 2):
+
+                # Ignoring the cell itself
+                if (i, j) == cell:
+                    continue
+
+                if 0 <= i < self.height and 0 <= j < self.width:
+                    surrounding_cells.add((i,j))
+
+        sentence = [surrounding_cells,count]
+
+        # append the new sentence to the knowledge list
+        self.knowledge.append(sentence)
+
+        """
+        Checking the knowledge for developments
+        """
+        # Removing safe cells from the sentences
+        if len(self.safes) != 0 and len(self.knowledge) != 0:
+            for safe in self.safes:
+                for cells, counts in sentence:
+                    if safe in cells:
+                        cells.discard(safe)
+
+        # Removing mine cells from the sentence and
+        # reducing it's count by the number of cell removed
+        if len(self.mines) != 0 and len(self.knowledge) != 0:
+            for mine in self.mines:
+                for cells, counts in sentence:
+                    if mine in cells:
+                        cells.discard(mine)
+                        counts -= 1
+
+        # checking what new knowledge can be obtained from the actions above
+        if len(self.knowledge) != 0:
+            # mark_safe and mark_mine will loop and modify the sentence list, 
+            # doing that inside a loop that is reading the seentence could lead to error,
+            # so intead, it will be saved and the mark function will be called after the loops.
+            mines_found = []
+            safes_found = []
+
+            for cells,counts in sentence.copy():
+                if not cells and counts == 0:
+                    sentence.remove(cell,counts)
+
+                #elif (not cells and counts != 0):
+                #    raise NameError("Found a empty cells with count != 0")
+
+                #elif (cells and counts < 0):
+                #    raise NameError("Found a non empty cells with counts < 0")
+                
+                # checking for sentences that only contains mines
+                elif len(cells) == counts:
+                    for mine in cells.copy():
+                        mines_found.append(mine)
+                    sentence.remove(cell,counts)
+                
+                # checking for sentences that have cells but counts == 0
+                elif cells and counts == 0:
+                    for safe in cells.copy():
+                        safes_found.append(safe)
+                    sentence.remove(cell,counts)
+
+                        
+        
+
+
+        
+
+
+
         raise NotImplementedError
 
     def make_safe_move(self):
