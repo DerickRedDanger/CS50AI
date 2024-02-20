@@ -122,9 +122,10 @@ class Sentence():
         # Removing mine cells from the sentence and
         # reducing it's count by 1 per cell removed
         if cell in self.cells:
-            self.cells.discard(mine)
+            self.cells.discard(cell)
             self.count -= 1
-        raise NotImplementedError
+        
+        #raise NotImplementedError
 
     def mark_safe(self, cell):
         """
@@ -159,12 +160,22 @@ class MinesweeperAI():
         # List of sentences about the game known to be true
         self.knowledge = []
 
+        # List of all cells in knowledge that are not know to be mines or safe
+        self.Backtracking_options=set()
+
+        # set of all checked intersection that were processed in add_knowledge
+        self.checked_intersection=set()
+
+        # list of all checked intersection that still were ambiguous after processed in add_knowledge
+        self.ambiguous_intersection=set()
+
     def mark_mine(self, cell):
         """
         Marks a cell as a mine, and updates all knowledge
         to mark that cell as a mine as well.
         """
         self.mines.add(cell)
+        self.Backtracking_options.discard(cell)
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
 
@@ -174,36 +185,34 @@ class MinesweeperAI():
         to mark that cell as safe as well.
         """
         self.safes.add(cell)
+        self.Backtracking_options.discard(cell)
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
 
     
-    def quick_check(self,cells,counts):
+    def quick_check(self,sentence):
         """
-        # student made custom function made to improve the functions efficience by making 
+        - student made custom function made to improve the functions efficience by making 
         quick checks to a sentence that was just modified, thus reducing te number  
         of times the knowledge would loop throught all sentences to check them
         """
+        cells = sentence[0]
+        counts = sentence[1]
 
         # Removing safe cells from the sentence
         if len(self.safes) != 0:
             for safe in self.safes:
-                if safe in cells:
-                    cells.discard(safe)
+                sentence.mark_safe(safe)
 
         # Removing mine cells from the sentence and
         # reducing it's count by 1 per cell removed
         if len(self.mines) != 0:
             for mine in self.mines:
-                if mine in cells:
-                    cells.discard(mine)
-                    counts -= 1
-
-        # checking what new knowledge can be obtained from the actions above
+                sentence.mark_mine(mine)
                     
-            # mark_safe and mark_mine will loop and modify the sentence list, 
-            # doing that inside a loop that is reading the seentence could lead to error,
-            # instead, it will be saved and the mark function will be called after the loops.
+        # Ai's mark_safe and mark_mine will loop and modify the sentence list, 
+        # doing that inside a loop that is reading the sentence could lead to error,
+        # instead, it will be saved and the mark function will be called after the loops.
         mines_found = []
         safes_found = []
 
@@ -222,6 +231,7 @@ class MinesweeperAI():
                 cells.discard(safe)
         
         # if mines or safes were found, loop in them calling the mark function
+        # checking self.knowledge and removing any of the mines/safe found
         if mines_found:
             for mine in mines_found:
                 self.mark_mine(mine)
@@ -275,30 +285,168 @@ class MinesweeperAI():
 
         sentence = [surrounding_cells,count]
 
-        # append the new sentence to the knowledge list
-        self.knowledge.append(sentence)
+        # cleaning sentence of know safe/mines and checking
+        # if new safe/mines could be found after it
+        self.quick_check(sentence)
+
+        # check if the sentence still have cells after the cleaning
+        if sentence[0] and sentence[1] >= 0:
+            # if there is, append it's cells to Backtracking_options
+            for cell in sentence[0]:
+                self.Backtracking_options.add(cell)
+            # and the sentence to knowledge list
+            self.knowledge.append(sentence)
+        
+        # if sentence don't have cells and counts == 0, 
+        # then it's empty and was fully processed
+            
+        # But if it's count is < 0, it having cells or not, an error happened
+        elif sentence[1] <= -1:
+            raise NameError(f"""Error - Count == {sentence[1]}. happened at cell = {cell} with count = {count}"
+                            With mines = {self.mines}, safe = {self.safes} 
+                            and knowledge = {self.knowledge}""")
 
         """
         Checking the knowledge for developments
         """
-        # Removing safe cells from the sentences
-        if len(self.safes) != 0 and len(self.knowledge) != 0:
-            for safe in self.safes:
-                for cells, counts in sentence:
-                    if safe in cells:
-                        cells.discard(safe)
 
-        # Removing mine cells from the sentence and
-        # reducing it's count by the number of cell removed
-        if len(self.mines) != 0 and len(self.knowledge) != 0:
-            for mine in self.mines:
-                for cells, counts in sentence:
-                    if mine in cells:
-                        cells.discard(mine)
-                        counts -= 1
+        # add the check_knowledge funtion to below after creating it
+        # ----
+        # check_knowledge(self.knowledge)
+        # ----
 
+        # The Mark function already checks the knowledge whenever
+        # a new safe or mine is found, so it's not nescessary to do it here
+        
+        # instead, we will clean any empty knowledge and compare sets to find subsets
         # checking what new knowledge can be obtained from the actions above
         if len(self.knowledge) != 0:
+            # mark_safe and mark_mine will loop and modify the sentence list, 
+            # doing that inside a loop that is reading the seentence could lead to error,
+            # so intead, it will be saved and the mark function will be called after the loops.
+            mines_found = set()
+            safes_found = set()
+
+            """
+            Cleaning knowledge of sentences that are empty, contain only safe or mines
+            and adding them to to the list.
+            """
+            for cells,counts in sentence.copy():
+
+                # If this sentence is empty, remove it
+                if not cells and counts == 0:
+                    sentence.remove(cell,counts)
+                
+                # checking if this sentences only contains mines
+                elif len(cells) == counts:
+                    for mine in cells.copy():
+                        mines_found.add(mine)
+                    sentence.remove(cell,counts)
+                
+                # checking if this sentence only contains safe
+                elif cells and counts == 0:
+                    for safe in cells.copy():
+                        safes_found.add(safe)
+                    sentence.remove(cell,counts)
+            
+            if mines_found:
+                for mine in mines_found:
+                    self.mark_mine(mine)
+
+            if safes_found:
+                for safe in safes_found:
+                    self.mark_safe(safe)
+
+            # saving the sentences that were modified so they can be checked after the loop
+            sentences_to_check={}
+
+            if len(self.knowledge) >= 2:
+                """
+                # checking for sentences whose cells contains all of another sentence's cell
+                if they exist, then remove theses same cells from sentence 1 and reduce
+                the count from the second sentence from the first one.
+                effectively subtracting sentence 2 from sentence 1.
+                """
+                for sentence in self.knowledge.copy():
+                    cell = sentence[0]
+                    count = sentence[1]
+                    for sentence2 in self.knowledge.copy():
+                        cell2 = sentence2[0]
+
+                        if cell.issuperset(cell2):
+                            count2=sentence2[1]
+                            cell.difference_update(cell2)
+                            count = count - count2
+                            sentences_to_check.add(sentence)
+                
+                for sentence1 in self.knowledge.copy():
+                    cell = sentence1[0]
+                    count = sentence1[1]
+
+                    
+                    inter_found=True
+
+                    while inter_found:
+                        inter_found=False
+                        for sentence2 in self.knowledge.copy():
+                            cell2 = sentence2[0]
+                            if sentence2 == sentence1:
+                                continue
+
+                            in_common = cell.intersection(cell2)
+                            if in_common and in_common not in self.checked_intersection:
+                                inter_found=True
+                                self.checked_intersection.add(frozenset(in_common))
+                                sentences_with_inter=[sentence1,sentence2]
+                                intersection =[set(),set()]
+                                inter_cell = intersection[0]
+                                inter_values = intersection[1]
+                                
+                                inter_cell.add(in_common)
+                                n_cell=len(inter_cell)
+                                for i in range(0,n_cell+1):
+                                    inter_values.add(i)
+
+                                for sentence3 in self.knowledge:
+                                    if sentence3 not in sentences_with_inter and sentence3[0].issuperset(inter_cell):
+                                        sentences_with_inter.append(sentence3)
+
+                                for value in inter_values.copy():
+                                    for sentence in sentences_with_inter:
+
+                                        difference_cell = len(sentence[0])-n_cell
+                                        difference_count = sentence[1] - value
+
+
+                                    if not (difference_cell >= difference_count and difference_count >= 0):
+                                        inter_values.remove(value)
+                                        break
+                                
+                                if len(inter_values) == 1:
+                                    new_sentence=[inter_cell,inter_values[0]]
+                                    self.quick_check(new_sentence)
+                                    if new_sentence[0] and new_sentence[1] >= 0:
+                                        self.knowledge.append(new_sentence)
+                                else:
+                                    for ambiguous_values in inter_values:
+                                        self.ambiguous_intersection.append([inter_cell, ambiguous_values])
+                            # still have to write a program to process self.ambiguous_intersection
+        
+
+
+        
+
+
+
+        raise NotImplementedError
+    
+    def check_knowledge(self,knowledge):
+        """
+        - User implemented function to check a knowledge base. Made separated from
+        add knowledge so it could be reutilized in Backtracking_technique
+        """
+
+        if len(knowledge) != 0:
             # mark_safe and mark_mine will loop and modify the sentence list, 
             # doing that inside a loop that is reading the seentence could lead to error,
             # so intead, it will be saved and the mark function will be called after the loops.
@@ -327,16 +475,7 @@ class MinesweeperAI():
                         safes_found.append(safe)
                     sentence.remove(cell,counts)
 
-                        
-        
-
-
-        
-
-
-
         raise NotImplementedError
-
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -346,6 +485,29 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
+        raise NotImplementedError
+    
+    def Backtracking_technique(self):
+        """
+        - User implemented function that checks the avaliable knowledge and
+        try to assign values to a cell in there and check if it properly
+        satisfy all sentences that it's part of. If it does, this value is assumed as
+        correct and changes are made in the knowledge. Else it's discarded and another
+        cell is tried. 
+
+        Considering this would lead to recursion and could take a considerable amount
+        of time, this function will only be called if no safe_move is avaliable.
+        """
+
+        for test in self.Backtracking_options.copy():
+            contained = set()
+            for sentence in self.knowledge:
+                cell = sentence[0]
+                count = sentence[1]
+                if test in cell:
+                    contained.add(sentence)
+
+
         raise NotImplementedError
 
     def make_random_move(self):
