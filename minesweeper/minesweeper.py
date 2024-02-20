@@ -105,13 +105,22 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-
+        if self.cells and len(self.cells) == self.count:
+            return self.cells
+        else:
+            return
+            
         raise NotImplementedError
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
+        if self.cells and self.count == 0:
+            return self.cells
+        else:
+            return
+        
         raise NotImplementedError
 
     def mark_mine(self, cell):
@@ -167,7 +176,7 @@ class MinesweeperAI():
         self.checked_intersection=set()
 
         # list of all checked intersection that still were ambiguous after processed in add_knowledge
-        self.ambiguous_intersection=set()
+        self.ambiguous_intersection=[]
 
     def mark_mine(self, cell):
         """
@@ -192,7 +201,7 @@ class MinesweeperAI():
     
     def quick_check(self,sentence):
         """
-        - student made custom function made to improve the functions efficience by making 
+        function made to improve the functions efficience by making 
         quick checks to a sentence that was just modified, thus reducing te number  
         of times the knowledge would loop throught all sentences to check them
         """
@@ -213,21 +222,23 @@ class MinesweeperAI():
         # Ai's mark_safe and mark_mine will loop and modify the sentence list, 
         # doing that inside a loop that is reading the sentence could lead to error,
         # instead, it will be saved and the mark function will be called after the loops.
-        mines_found = []
-        safes_found = []
+        mines_found = set()
+        safes_found = set()
 
                 
         # checking if the sentence only contains mines
-        if len(cells) == counts:
-            for mine in cells.copy():
-                mines_found.append(mine)
+        mine_check = sentence.know_mines()
+        if mine_check:
+            for mine in mine_check:
+                mines_found.add(mine)
                 counts -= 1
                 cells.discard(mine)
 
         # checking if sentences has only safe cells
-        elif cells and counts == 0:
-            for safe in cells.copy():
-                safes_found.append(safe)
+        safe_check = sentence.know_safe()
+        if safe_check:
+            for safe in safe_check:
+                safes_found.add(safe)
                 cells.discard(safe)
         
         # if mines or safes were found, loop in them calling the mark function
@@ -291,10 +302,7 @@ class MinesweeperAI():
 
         # check if the sentence still have cells after the cleaning
         if sentence[0] and sentence[1] >= 0:
-            # if there is, append it's cells to Backtracking_options
-            for cell in sentence[0]:
-                self.Backtracking_options.add(cell)
-            # and the sentence to knowledge list
+            # if there is add the sentence to knowledge list
             self.knowledge.append(sentence)
         
         # if sentence don't have cells and counts == 0, 
@@ -308,18 +316,13 @@ class MinesweeperAI():
 
         """
         Checking the knowledge for developments
-        """
-
-        # add the check_knowledge funtion to below after creating it
-        # ----
-        # check_knowledge(self.knowledge)
-        # ----
-
-        # The Mark function already checks the knowledge whenever
-        # a new safe or mine is found, so it's not nescessary to do it here
         
-        # instead, we will clean any empty knowledge and compare sets to find subsets
-        # checking what new knowledge can be obtained from the actions above
+        The Mark function already checks the knowledge whenever
+        a new safe or mine is found, so it's not nescessary to do it here
+        
+        instead, it will clean any empty knowledge, check for sentences made only of safe or mines
+        and compare sets to find subsets checking what new knowledge can be obtained from the actions above
+        """
         if len(self.knowledge) != 0:
             # mark_safe and mark_mine will loop and modify the sentence list, 
             # doing that inside a loop that is reading the seentence could lead to error,
@@ -331,23 +334,25 @@ class MinesweeperAI():
             Cleaning knowledge of sentences that are empty, contain only safe or mines
             and adding them to to the list.
             """
-            for cells,counts in sentence.copy():
+            for sentence in self.knowledge.copy():
+                cells = sentence[0]
+                counts = sentence[1]
 
                 # If this sentence is empty, remove it
                 if not cells and counts == 0:
-                    sentence.remove(cell,counts)
+                    sentence.remove(sentence)
                 
                 # checking if this sentences only contains mines
                 elif len(cells) == counts:
                     for mine in cells.copy():
                         mines_found.add(mine)
-                    sentence.remove(cell,counts)
+                    sentence.remove(sentence)
                 
                 # checking if this sentence only contains safe
                 elif cells and counts == 0:
                     for safe in cells.copy():
                         safes_found.add(safe)
-                    sentence.remove(cell,counts)
+                    sentence.remove(sentence)
             
             if mines_found:
                 for mine in mines_found:
@@ -364,7 +369,7 @@ class MinesweeperAI():
                 """
                 # checking for sentences whose cells contains all of another sentence's cell
                 if they exist, then remove theses same cells from sentence 1 and reduce
-                the count from the second sentence from the first one.
+                the count of the second sentence from the first one.
                 effectively subtracting sentence 2 from sentence 1.
                 """
                 for sentence in self.knowledge.copy():
@@ -379,6 +384,18 @@ class MinesweeperAI():
                             count = count - count2
                             sentences_to_check.add(sentence)
                 
+                """
+                Checking for intersection between sentences (cells they have in common), if one is found,
+                check all other sentences and see if there are others with the same cells in common, saving them in a list.
+                Then find all values possible for these cells to contain together (0 to n of cells)
+                then remove this number of cells from the sentences(len(sentence[0]) - len(cell)) in the list and try removing 
+                each of the possible values from the count of each sentence, looking for a impossibility 
+                (having less cells then count or having count <0) each time one is found, discard that possibility and continue. 
+                
+                if only one possibility remains, this one is true, it's checked and added to knowledge. 
+                If more then one is found, then it's ambiguous, save it in a set to be 
+                explored again later when more information is avaliable.
+                """
                 for sentence1 in self.knowledge.copy():
                     cell = sentence1[0]
                     count = sentence1[1]
@@ -402,7 +419,7 @@ class MinesweeperAI():
                                 inter_cell = intersection[0]
                                 inter_values = intersection[1]
                                 
-                                inter_cell.add(in_common)
+                                inter_cell.update(in_common)
                                 n_cell=len(inter_cell)
                                 for i in range(0,n_cell+1):
                                     inter_values.add(i)
@@ -417,25 +434,121 @@ class MinesweeperAI():
                                         difference_cell = len(sentence[0])-n_cell
                                         difference_count = sentence[1] - value
 
-
-                                    if not (difference_cell >= difference_count and difference_count >= 0):
-                                        inter_values.remove(value)
-                                        break
+                                        # checking the conditions that would make this a valid value, 
+                                        # but only triggering if they aren't a valid one (because of the Not and or)
+                                        if not (difference_cell >= difference_count or difference_count >= 0):
+                                            inter_values.remove(value)
+                                            break
                                 
+                                # If there is only 1 possible value left, then this value is true. Check and add to knowledge.
                                 if len(inter_values) == 1:
                                     new_sentence=[inter_cell,inter_values[0]]
                                     self.quick_check(new_sentence)
                                     if new_sentence[0] and new_sentence[1] >= 0:
                                         self.knowledge.append(new_sentence)
+
+                                #---------------------------
+                                # -------------- change this so the second ambiguous takes all values in a cell, not spread in many sentences----
+                                # if there is more then 1 possible value, save them to be processed when more information is avaliable
                                 else:
                                     for ambiguous_values in inter_values:
                                         self.ambiguous_intersection.append([inter_cell, ambiguous_values])
-                            # still have to write a program to process self.ambiguous_intersection
-        
+                            
+            """
+            Checking the intersections that returned ambiguous result, first trying to find other
+            ambiguous intersections that are supersets of the first and checking the result. any that return a
+            inequality is discarderd.
 
+            If there are still more then one ambiguous intersection of a kind, compare it to the sentences that
+            contain it and check for inequalities, Discarding any found.
 
-        
+            If only 1 sentence remains, that one is valid and should be checked then sent to sentences if
+            there is still information after check.
+            """
+            # It's a bad idea to change a list/set while looping in it
+            # So i will save the ones I want to discard and remove them later.
+            ambiguous_to_discard=[]
+            if self.ambiguous_intersection >= 2:
+                for sentence1 in self.ambiguous_intersection:
+                    if sentence1 not in ambiguous_to_discard:
+                        ambiguous_to_explore=set()
+                        ambiguous_to_explore.add(sentence1)
+                        n_cell = len(sentence1[0])                    
 
+                        for sentence2 in self.ambiguous_intersection:
+                            if sentence1[0] == sentence2[0]:
+                                ambiguous_to_explore.add(sentence2)
+
+                        # creating a list with all possible values for a same cell
+                        sentences_with_same_cell=[]
+
+                        # creating a list of list with all possible values
+                        superset_ambiguous=[]
+                        
+                        for sentence3 in self.ambiguous_intersection:
+                            # if the sentence isn't already in the list of sentences to be explored and is a superset of them
+                            if sentence3 not in ambiguous_to_explore and sentence3[0].issuperset(sentence1[0]):
+                                # if the list is empty, add the first element that passes the if
+                                if not sentences_with_same_cell:
+                                    sentences_with_same_cell.append(sentence3)
+                                # if it's not empty, add a element if it has the same cell as the one in the list
+                                elif sentence3[0] == sentences_with_same_cell[0][0]:
+                                    sentences_with_same_cell.append(sentence3)
+                                # if it's not empty and is a different element, append the list to the one to be tested
+                                # reset the list and start filling it again with this element.
+                                else:
+                                    superset_ambiguous.append(sentences_with_same_cell)
+                                    sentences_with_same_cell=[]
+                                    sentences_with_same_cell.append(sentence3)
+
+                        # the for above won't append the last list, so if it exist, it's appended here
+                        if sentences_with_same_cell:
+                            superset_ambiguous.append(sentence3)
+                        
+                        if (superset_ambiguous):
+                            for ambiguous in ambiguous_to_explore.copy():
+                                
+                                # Since we are working with possibilities, not certainties, the only way we can reject
+                                # a value is if it's a impossibilities for all tests that have the same cells
+                                for lists in superset_ambiguous:
+                                    rejected = True
+                                    for test in lists:
+                                        difference_cell = len(test[0]) - n_cell
+                                        difference_count = test[1] - ambiguous[1]
+                                        # if it passes even one test, then we can't discard this value.
+                                        if (difference_cell >= difference_count and difference_count >= 0):
+                                            rejected=False
+                                            break
+                                    # if it fails all testes, then it can be discarded
+                                    if rejected:
+                                        ambiguous_to_discard.append(ambiguous)
+                                        ambiguous_to_explore.discard(ambiguous)
+
+                        if len(ambiguous_to_explore) >= 2:
+                            superset_sentence=set()
+                            for sentence in self.knowledge:
+                                if sentence[0].issuperset(sentence1[0]):
+                                    superset_sentence.add(sentence3)
+
+                            if (superset_sentence):
+                                for ambiguous in ambiguous_to_explore.copy():
+                                    for test in superset_sentence:
+                                        difference_cell = len(test[0]) - n_cell
+                                        difference_count = test[1] - ambiguous[1]
+
+                                        if not (difference_cell >= difference_count and difference_count >= 0):
+                                            ambiguous_to_discard.append(ambiguous)
+                                            ambiguous_to_explore.discard(ambiguous)
+                                            break
+
+                        if len(ambiguous_to_explore) == 1:
+                            self.check(ambiguous_to_explore[0])
+                            if ambiguous_to_explore[0][0] and ambiguous_to_explore[0][1] >= 0:
+                                self.knowledge.append(new_sentence)
+
+            if ambiguous_to_discard:
+                for ambiguous in ambiguous_to_discard:
+                    self.ambiguous_intersection.remove(ambiguous)
 
 
         raise NotImplementedError
