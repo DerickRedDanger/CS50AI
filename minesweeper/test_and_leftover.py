@@ -57,3 +57,44 @@ def Backtracking_technique(self):
 
 
         raise NotImplementedError
+
+
+# mark_safe and mark_mine will loop and modify the sentence list, 
+        # doing that inside a loop that is reading the seentence could lead to error,
+        # so intead, it will be saved and the mark function will be called after the loops.
+        mines_found = set()
+        safes_found = set()
+
+        """
+        Cleaning knowledge of sentences that are empty, contain only safe or mines
+        and adding them to to the list.
+        """
+        for sentence in self.knowledge.copy():
+            cells = sentence.cells
+            counts = sentence.count
+
+            # If this sentence is empty, remove it
+            if not cells and counts == 0:
+                sentence.remove(sentence)
+            
+            # checking if this sentences only contains mines
+            elif len(cells) == counts:
+                for mine in cells.copy():
+                    mines_found.add(mine)
+                sentence.remove(sentence)
+            
+            # checking if this sentence only contains safe
+            elif cells and counts == 0:
+                for safe in cells.copy():
+                    safes_found.add(safe)
+                sentence.remove(sentence)
+        
+        if mines_found:
+            for mine in mines_found:
+                self.mark_mine(mine)
+
+        if safes_found:
+            for safe in safes_found:
+                self.mark_safe(safe)
+
+       
