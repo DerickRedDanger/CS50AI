@@ -107,6 +107,7 @@ class Sentence():
         Returns the set of all cells in self.cells known to be mines.
         """
         if self.cells and len(self.cells) == self.count:
+            print(f"know_mines = {self.cells}")
             return self.cells
         else:
             return set()
@@ -118,6 +119,7 @@ class Sentence():
         Returns the set of all cells in self.cells known to be safe.
         """
         if self.cells and self.count == 0:
+            print(f"know_safes = {self.cells}")
             return self.cells
         else:
             return set()
@@ -135,7 +137,9 @@ class Sentence():
             #print(f"Sentence.mark_mine - self = {self}")
             self.cells.discard(cell)
             self.count -= 1
+            return True
             #print(f"Sentence.mark_mine - new self = {self}")
+        return False
         
         #raise NotImplementedError
 
@@ -147,6 +151,8 @@ class Sentence():
         # Removing the safe cell from the sentence, if it's there
         if cell in self.cells.copy():
             self.cells.discard(cell)
+            return True
+        return False
         
         #raise NotImplementedError
 
@@ -191,20 +197,29 @@ class MinesweeperAI():
         #print(f"mines = {self.mines}")
         if self.knowledge:
             for sentence in self.knowledge:
-                sentence.mark_mine(cell)
+                if sentence.mark_mine(cell):
+                    self.quick_check(sentence)
 
         if self.ambiguous_intersection:
             for sentence in self.ambiguous_intersection:
+                print(colored(f"Ai_mark_mine_ambiguous - sentence = {sentence}"))
                 if cell in sentence[0]:
+                    changes=False
                     sentence[0].remove(cell)
                     #print(f"sentence[1] = {sentence[1]}")
-                    for count in sentence[1].copy():
-                        pointer = count
+                    index_to_delete=[]
+                    for i in range (len(sentence[1])):
+                        sentence[1][i] -=1
                         #print(f"sentence[1] = {sentence[1]}")
                         #print(f"count ={count}")
-                        count -= 1
-                        if len(sentence[0]) < count or count < 0:
-                            sentence[1].remove(pointer)
+                        if len(sentence[0]) < sentence[1][i] or sentence[1][i] < 0:
+                            index_to_delete.append(i)
+                            changes=True
+                    for i in reversed(index_to_delete):
+                        sentence[1].pop(i)
+                    if changes:
+                        print(colored(f"Ai_mark_mine_ambiguous - changed - sentence = {sentence}"))
+                        self.quick_check_ambiguous(sentence)
                     
         
 
@@ -216,13 +231,17 @@ class MinesweeperAI():
         self.safes.add(cell)
         if self.knowledge:
             for sentence in self.knowledge:
-                sentence.mark_safe(cell)
+                if sentence.mark_safe(cell):
+                    self.quick_check(sentence)
 
         if self.ambiguous_intersection:
             for sentence in self.ambiguous_intersection:
+                changes = False
                 if cell in sentence[0]:
                     sentence[0].remove(cell)
-
+                    changes = True
+                if changes:
+                    self.quick_check_ambiguous(sentence)
     
     def quick_check(self,sentence):
         """
@@ -280,12 +299,14 @@ class MinesweeperAI():
         # checking self.knowledge and removing any of the mines/safe found
         #print(f"mines found ={mines_found}")
         if mines_found:
+            print(colored(f" quick_check - Mines found = {mines_found}",'cyan'))
             for mine in mines_found:
                 self.mark_mine(mine)
         #print(f"Mines now = {self.mines}")
 
         #print(f"safes found ={safes_found}")
         if safes_found:
+            print(colored(f"quick_check - Safes found = {safes_found}",'green'))
             for safe in safes_found:
                 self.mark_safe(safe)
         #print(f"safes now = {self.safes}")
@@ -293,7 +314,7 @@ class MinesweeperAI():
         # check if the sentence not longer have cells and is part of the knowledge
         # if it's empty and part of knowledge, remove it from there
         print(f"sentence = {sentence}")
-        print(f"pointer_for_deletion = {pointer_for_deletion}")
+        #print(f"pointer_for_deletion = {pointer_for_deletion}")
         if not sentence.cells and pointer_for_deletion:
             for orignal_sentence in self.knowledge:
                 if id(orignal_sentence) == pointer_for_deletion:
@@ -323,6 +344,7 @@ class MinesweeperAI():
         Marks the cell to the set of moves_made
         """
         self.moves_made.add(cell)
+        print(colored(f"Cell clicked = {cell}, counts = {count}" ,'green'))
 
         """
         Marks the cell as safe
@@ -382,16 +404,14 @@ class MinesweeperAI():
                 new_knowledge = self.check_knowledge()
                 print(f"This is the {N}° time knowledge is checked")
         print(f"safes = {self.safes}, mines = {self.mines}")
-        print("knowledge = {", end=" ")
 
-        for sentence in self.knowledge:
-            print(sentence,end= " ")
-        print("}", end="")
-        print('')
-        print("ambiguous_intersection", end="")
-        for sentence in self.ambiguous_intersection:
-            print(sentence,end= " ")
-        print("}", end="")
+        #print("knowledge = {", end=" ")
+        #for sentence in self.knowledge:
+        #    print(sentence,end= " ")
+        #print("}", end="")
+        #print('')
+        
+        
             
             
     def check_knowledge(self):
@@ -421,6 +441,12 @@ class MinesweeperAI():
             """
             sentences_to_remove=[]
 
+            print("knowledge = {", end=" ")
+            for sentence in self.knowledge:
+                print(sentence,end= " ")
+            print("}", end="")
+            print('')
+
             for sentence in self.knowledge.copy():
                 if not sentence.cells:
                     continue
@@ -428,6 +454,9 @@ class MinesweeperAI():
                 for sentence2 in self.knowledge:
 
                     if sentence.cells.issuperset(sentence2.cells) and sentence.cells != sentence2.cells and sentence2.cells:
+                        new_sentence_cells=set()
+                        new_sentence_count=0
+
                         print(f"{sentence.cells} is superset {sentence2.cells}")
                         # to keep this function from creating multiple sentences by creating a subset 
                         # while still having it's original superset, it's superset will be saved and, after fully
@@ -435,13 +464,14 @@ class MinesweeperAI():
                         sentences_to_remove.append(sentence)
 
                         print(colored(f"cell {sentence.cells} - cell 2 {sentence2.cells}", 'yellow'))
-                        sentence.cells.difference_update(sentence2.cells)
-                        print(colored(f" = cell {sentence.cells}", 'yellow'))
+                        new_sentence_cells = sentence.cells.difference(sentence2.cells)
+                        print(colored(f" = cell {new_sentence_cells}", 'yellow'))
                         print(colored(f"count1 = {sentence.count} - count2 = {sentence2.count}", 'yellow'))
-                        sentence.count = sentence.count - sentence2.count
-                        print(colored(f" = {sentence.count}", 'yellow'))
-                        print(colored(f" sentence to check = {sentence}", 'red'))
-                        sentences_to_check.append(sentence)
+                        new_sentence_count = sentence.count - sentence2.count
+                        print(colored(f" = {new_sentence_count}", 'yellow'))
+                        new_sentence=Sentence(new_sentence_cells,new_sentence_count)
+                        print(colored(f" sentence to check = {new_sentence}", 'red'))
+                        sentences_to_check.append(new_sentence)
                         new_knowledge=True
                         
 
@@ -453,6 +483,8 @@ class MinesweeperAI():
                     if sentence.cells:
                         print(colored(f" sentence appended to knowledge = {sentence}", 'red'))
                         self.knowledge.append(sentence)
+                        print(colored("knowledge after append",'yellow'))
+                        
             
             checking_intersections=self.checking_intersections()
             #ambiguous_intersection=self.checking_ambiguous_intersection()
@@ -460,13 +492,25 @@ class MinesweeperAI():
             if sentences_to_remove:
                 cleaned_knowledge=[]
                 for sentence in self.knowledge:
-                    if sentence not in sentences_to_check and sentence.cells:
+                    if sentence not in sentences_to_remove and sentence.cells:
+                        cleaned_knowledge.append(sentence)
+                self.knowledge = cleaned_knowledge
+            
+            else:
+                cleaned_knowledge=[]
+                for sentence in self.knowledge:
+                    if sentence.cells :
                         cleaned_knowledge.append(sentence)
                 self.knowledge = cleaned_knowledge
             
             # If any of theses checks return true, it means new information was found and knowledge was modified.
             # as such, the Ai should check the knowledge again, till no more information can be obtained
-            if new_knowledge or checking_intersections:  #or ambiguous_intersection:
+            if new_knowledge or checking_intersections :  #or ambiguous_intersection:
+                print("knowledge = {", end=" ")
+                for sentence in self.knowledge:
+                    print(sentence,end= " ")
+                print("}", end="")
+                print('')
                 return True
 
     def checking_intersections(self):
@@ -496,7 +540,7 @@ class MinesweeperAI():
                             continue
 
                         in_common = sentence1.cells.intersection(sentence2.cells)
-                        if in_common and in_common not in self.checked_intersection:
+                        if len(in_common) >= 2 and in_common not in self.checked_intersection:
                             inter_found=True
                             self.checked_intersection.add(frozenset(in_common))
                             sentences_with_inter=[sentence1,sentence2]
@@ -514,28 +558,37 @@ class MinesweeperAI():
                                 if sentence3 not in sentences_with_inter and sentence3.cells.issuperset(inter_cell):
                                     sentences_with_inter.append(sentence3)
 
+                            print(colored(f"Checking_intersections - sentence/counts - {inter_cell}/{inter_values}",'cyan'))
+                            print(colored(f"sentences with inter",'cyan'),end=" ")
+                            for sentence in sentences_with_inter:
+                                print(colored(f"{sentence}",'cyan'),end=" ")
+                            print('')
                             # Check each of the possible values against each of the superset sentences
                             for value in inter_values.copy():
                                 for sentence in sentences_with_inter:
-
+                                    print(f" sentence to be test = {sentence}")
                                     difference_cell = len(sentence.cells)-n_cell
                                     difference_count = sentence.count - value
-
+                                    print(f"difference_cell = {difference_cell}")
+                                    print(f"diffenrece_count = {difference_count}")
                                     # checking the conditions that would make this a valid value, 
                                     # but only triggering if they aren't a valid one (because of the Not and or)
-                                    if not (difference_cell >= difference_count or difference_count >= 0):
+                                    if not (difference_cell >= difference_count and difference_count >= 0):
                                         inter_values.remove(value)
                                         break
                             
                             # If there is only 1 possible value left, then this value is true. Check and add to knowledge.
                             if len(inter_values) == 1:
                                 new_sentence = Sentence(inter_cell,inter_values[0])
+                                print(colored(f"Only one value for count remains, new sentence = {new_sentence}",'cyan'))
                                 self.quick_check(new_sentence)
-                                if new_sentence[0] and new_sentence[1] >= 0:
+                                if new_sentence.cells and new_sentence.count >= 0:
+                                    print(colored(f" new sentence added to knowledge sentence ={new_sentence}",'cyan'))
                                     self.knowledge.append(new_sentence)
                                 new_knowledge=True
 
                             else:
+                                print(colored(f"more then one value for count remains, new ambiguous = {inter_cell},{inter_values}",'cyan'))
                                 self.ambiguous_intersection.append([inter_cell,inter_values])
                                 new_knowledge=True
             return new_knowledge
@@ -591,7 +644,7 @@ class MinesweeperAI():
                                         rejected=False
                                         break
 
-                                # if it fails all testes, then it can be discarded and we can skip ot the next value
+                                # if it fails all tests, then it can be discarded and we can skip to the next value
                                 if rejected:
                                     ambiguous_to_explore[1].remove(ambiguous_value)
                                     new_knowledge=True
@@ -627,9 +680,14 @@ class MinesweeperAI():
         if ambiguous_to_discard:
             new_ambiguous_intersection=[]
             for ambiguous in self.ambiguous_intersection:
-                if ambiguous not in ambiguous_to_discard:
+                if ambiguous not in ambiguous_to_discard and ambiguous[0]:
                     new_ambiguous_intersection.append(ambiguous)
             self.ambiguous_intersection= new_ambiguous_intersection
+
+        print("ambiguous_intersection = [", end="")
+        for sentence in self.ambiguous_intersection:
+            print(sentence,end= " ")
+        print("]")
 
         return new_knowledge
 
@@ -640,9 +698,15 @@ class MinesweeperAI():
         if it has only safes or only mines.
         if it's has become a sentence, add it to sentence and remove it from self.ambiguous.
         """
+
+        #-----------------------
+        # make changes so that ambiguous with only 1 cell and multiple valures are deleted
+        #----------------------
+
         cells = ambiguous[0]
-        counts = ambiguous[1]
+        count = ambiguous[1]
         pointer_for_deletion=None
+        print(colored(f"quick_check_ambiguous - ambiguous = {ambiguous}",'cyan'))
 
         # check if this sentence is in the knowledge already, if it's save it's value
         # so that i can be deleted in case it's emptied by the end of the check
@@ -657,22 +721,22 @@ class MinesweeperAI():
 
         # check if this ambiguous only has 1 valid count
         if len(count) > 1:
-            for count in counts.copy():
-                if count > cells or count > 0:
-                    counts.remove(count)
+            for value in count.copy():
+                if value > len(cells) or value < 0:
+                    count.remove(value)
         
         # if ambiguous has only 1 count, then it's a valid sentence and we can start to check it
         if len(count) == 1:
                 
             # checking if the ambiguous only contains mines
-            if counts[0] == len(cells):
+            if count[0] == len(cells):
                 for cell in cells.copy():
-                    counts[0] -= 1
+                    count[0] -= 1
                     mines_found.add(cell)
                     cells.remove(cell)
 
              # checking if the ambiguous only contains safe cells
-            if counts[0] == 0:
+            if count[0] == 0:
                 for cell in cells.copy():
                     safes_found.add(cell)
                     cells.remove(cell)
@@ -681,22 +745,24 @@ class MinesweeperAI():
             # if mines or safes were found, loop in them calling the mark function
             # checking self.knowledge and removing any of the mines/safe found
             if mines_found:
+                print(colored(f"quick_check_ambiguous - Mines found = {mines_found}",'cyan'))
                 for mine in mines_found:
                     self.mark_mine(mine)
             
             if safes_found:
+                print(colored(f"quick_check_ambiguous - Safes found = {safes_found}",'green'))
                 for safe in mines_found:
                     self.mark_safe(safe)
 
             # check if the ambiguous not longer have cells and is part of the ambiguous
             # intersection, if it's empty and part of intersection, remove it from there
-            if  not cells and pointer_for_deletion:
+            if not cells and pointer_for_deletion:
                 self.ambiguous_intersection.remove(pointer_for_deletion)
 
             # if it still has cells and only 1 count, add it to sentences and remove from 
             # ambiguous intersection
             if cells:
-                new_sentence=Sentence(cells,counts[0])
+                new_sentence=Sentence(cells,count[0])
                 self.knowledge.append(new_sentence)
                 self.ambiguous_intersection.remove(pointer_for_deletion)
 
@@ -716,7 +782,9 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        print(f"safe = {self.safes}")
+        if len(self.mines) == 8 :
+            print(colored("All mines were found!", 'red'))
+            return
         for move in self.safes:
             if move not in self.moves_made:
                 print (f"safe move made = {move}")
@@ -740,6 +808,7 @@ class MinesweeperAI():
         # when it's value is found) and the highest chance the cell has to be a mine
         if len(self.mines) == 8 :
             print(colored("All mines were found!", 'red'))
+            return
         valuable_cells = {}
         for sentence in self.knowledge:
             for cell in sentence.cells:
@@ -775,7 +844,7 @@ class MinesweeperAI():
         most_likely_safe_cells=[]
         lowest=1
         for key,value,in valuable_cells.items():
-            print(f"Key = {key}, value = {value}")
+            print(f"Key = {key}, highest Chance of being a mine = {value[1]} value = {value[0]}")
             if value[1] < lowest:
                 lowest = value[1]
                 most_likely_safe_cells = []
