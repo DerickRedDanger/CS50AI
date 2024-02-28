@@ -258,7 +258,6 @@ class MinesweeperAI():
             pointer_for_deletion = id(sentence)         
 
         # Removing safe cells from the sentence
-        print (f"quick_check - sentence.mark_safe")
         if len(self.safes) != 0:
             for safe in self.safes:
                 #print (f"safe = {safe}")
@@ -266,7 +265,6 @@ class MinesweeperAI():
 
         # Removing mine cells from the sentence and
         # reducing it's count by 1 per cell removed
-        print (f"quick_check - sentence.mark_mine")
         if len(self.mines) != 0:
             for mine in self.mines:
                 sentence.mark_mine(mine)
@@ -373,9 +371,11 @@ class MinesweeperAI():
         # if new safe/mines could be found after it
         print(f"sentence in add moviment - before quick check = {sentence}")
         print(f"safe before the quick check = {self.safes}")
+        print(f"mines before the quick check = {self.mines}")
         self.quick_check(sentence)
         print(f"sentence in add moviment - after quick check = {sentence}")
         print(f"safe after the quick check = {self.safes}")
+        print(f"mines after the quick check = {self.mines}")
 
         # check if the sentence still have cells after the cleaning
         if sentence.cells and sentence.count >= 0:
@@ -461,7 +461,7 @@ class MinesweeperAI():
                         # to keep this function from creating multiple sentences by creating a subset 
                         # while still having it's original superset, it's superset will be saved and, after fully
                         # processing knowledge to reduce the loss of information, removed
-                        sentences_to_remove.append(sentence)
+                        sentences_to_remove.append(id(sentence))
 
                         print(colored(f"cell {sentence.cells} - cell 2 {sentence2.cells}", 'yellow'))
                         new_sentence_cells = sentence.cells.difference(sentence2.cells)
@@ -487,12 +487,12 @@ class MinesweeperAI():
                         
             
             checking_intersections=self.checking_intersections()
-            #ambiguous_intersection=self.checking_ambiguous_intersection()
+            ambiguous_intersection=self.checking_ambiguous_intersection()
 
             if sentences_to_remove:
                 cleaned_knowledge=[]
                 for sentence in self.knowledge:
-                    if sentence not in sentences_to_remove and sentence.cells:
+                    if id(sentence) not in sentences_to_remove and sentence.cells:
                         cleaned_knowledge.append(sentence)
                 self.knowledge = cleaned_knowledge
             
@@ -505,7 +505,7 @@ class MinesweeperAI():
             
             # If any of theses checks return true, it means new information was found and knowledge was modified.
             # as such, the Ai should check the knowledge again, till no more information can be obtained
-            if new_knowledge or checking_intersections :  #or ambiguous_intersection:
+            if new_knowledge or checking_intersections or ambiguous_intersection:
                 print("knowledge = {", end=" ")
                 for sentence in self.knowledge:
                     print(sentence,end= " ")
@@ -708,10 +708,15 @@ class MinesweeperAI():
         pointer_for_deletion=None
         print(colored(f"quick_check_ambiguous - ambiguous = {ambiguous}",'cyan'))
 
+        
+
+
         # check if this sentence is in the knowledge already, if it's save it's value
         # so that i can be deleted in case it's emptied by the end of the check
         if ambiguous in self.ambiguous_intersection:
             pointer_for_deletion = ambiguous
+            if len(cells) == 1 and len(count) != 1:
+                self.ambiguous_intersection.remove(pointer_for_deletion)
                     
         # Ai's mark_safe and mark_mine will loop and modify the sentence list, 
         # doing that inside a loop that is reading the sentence could lead to error,
@@ -866,6 +871,7 @@ class MinesweeperAI():
         if most_valuable_cell:
             print(colored(f"Educated random move = {most_valuable_cell}",'blue'))
             return most_valuable_cell
+        
         # if it doesn't exist, then there is only one safest cell, we return it.
         elif most_likely_safe_cells:
             print(colored(f"Educated random move = {most_likely_safe_cells[0]}",'blue'))
@@ -884,6 +890,7 @@ class MinesweeperAI():
                 move = random.choice(random_move_options)
                 print(colored(f"random move = {move}",'blue'))
                 return move
+            
             except:
                 print(colored("All mines were found!", 'red'))
                 return
