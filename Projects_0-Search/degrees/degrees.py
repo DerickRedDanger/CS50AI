@@ -93,40 +93,42 @@ def shortest_path(source, target):
     """
 
     # ---- TODO ---
-    """""
-    My code starts from here
-    """""
-    #  if the target is the source it self, the degree = 0
-    if source == target:
-        return []
-    #  to keep tract of how long it took for the code to run
+
+    # to keep tract of how long it took for the code to run
     start_time = time.time()
 
-    """
-    Modifications do the util.Node:
-    added .parent_movie and .level
-    changed .actions to .movie_children
-
-    Node(state, parent, parent_movie, movie_children,level)
-    """
-
+    # if the target is the source it self, then degree = 0
+    if source == target:
+        return []
+    
+    # Node(state, parent, parent_movie, movie_children,level)
     start = Node(source, False, False, neighbors_for_person(source), 0)
 
     Queue = QueueFrontier()
+
+    # creating a set with all actors that were already explored
     actors_explored = set()
     actors_explored.add(start)
 
-    for i in start.movie_children:
-        if i[1] != target:
-            if i[1] not in actors_explored:
-                node = Node(i[1], start, i[0], neighbors_for_person(i[1]), (start.level+1))
+    # Looping inside all of Movie_children/Person_chieldren pair of the source actor
+    # In other world, looping inside the pair that contain the movie the actor starred and another actor presente in the same movie
+    for movie_person_pair in start.movie_children:
+
+        # If the actor is not the target, and not in the explored list, 
+        # create a new node based on him and add to the queue.
+        if movie_person_pair[1] != target:
+            if movie_person_pair[1] not in actors_explored:
+                node = Node(movie_person_pair[1], start, movie_person_pair[0], neighbors_for_person(movie_person_pair[1]), (start.level+1))
                 Queue.add(node)
-                actors_explored.add(i[1])
+                actors_explored.add(movie_person_pair[1])
+        # If the actor is the target, append the pair to shortest and return it.
         else:
             shortest = []
-            shortest.append(i)
+            shortest.append(movie_person_pair)
             return shortest
-
+        
+    # If the target was not found in the initial attempt, 
+    # repeat the process the process till he is found or the queue is empty.
     while not Queue.empty():
         node = Queue.remove()
         """""
@@ -137,23 +139,25 @@ def shortest_path(source, target):
         print(f"Degree = {node.level}")
         print (f"level = {node.level}")
         """""
-        for i in node.movie_children:
+        for movie_person_pair in node.movie_children:
             """""
             For debugging purpose
-            print (f"i = {i}")
-            print(f"Movie = {i[0]}")
-            print(f"child = {i[1]}")
+            print (f"movie_person_pair = {movie_person_pair}")
+            print(f"Movie = {movie_person_pair[0]}")
+            print(f"child = {movie_person_pair[1]}")
             """""
-            if i[1] != target:
-                if i[1] not in actors_explored and node.level <= 5:
+            if movie_person_pair[1] != target:
+                if movie_person_pair[1] not in actors_explored and node.level <= 5:
 
-                    child = Node(i[1], node, i[0], neighbors_for_person(i[1]), (node.level + 1))
+                    child = Node(movie_person_pair[1], node, movie_person_pair[0], neighbors_for_person(movie_person_pair[1]), (node.level + 1))
                     Queue.add(child)
-                    actors_explored.add(i[1])
+                    actors_explored.add(movie_person_pair[1])
 
+            # If the target is found, appent the pair to shortest, backtrack throught it's parents
+            # appending their pair till reaching the source Actor, then revert the shortest order and return
             else:
                 shortest = []
-                shortest.append(i)
+                shortest.append(movie_person_pair)
                 x = 0
                 while x <= 6:
                     if node.parent != False:
@@ -171,6 +175,8 @@ def shortest_path(source, target):
     #  to keep tract of how long it took for the code to run
     end_time = time.time()
     print(f"Total time of running the code = {end_time - start_time}")
+
+    # If the queue is empty and the target wasn't found, return None.
     return None
 
 

@@ -1,11 +1,15 @@
+
+
 class Node():
     def __init__(self, state, parent, parent_movie, movie_children,level):
+        """
+        Modifications to Node:
+        added .parent_movie and .level
+        changed .actions to .movie_children
+        """
         self.state = state
         self.parent = parent
         self.parent_movie= parent_movie
-        #
-        # self.parent_movie= parent_movie change this in the degree
-        #
         self.movie_children = movie_children
         self.level=level
 
