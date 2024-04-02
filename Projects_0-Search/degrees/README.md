@@ -1,7 +1,8 @@
-The problem and it's full description is avaliable in the link: https://cs50.harvard.edu/ai/2024/projects/0/degrees/
+The problem and it's full description is avaliable in the link:
+https://cs50.harvard.edu/ai/2024/projects/0/degrees/
 
 
-* Introduction:
+## Introduction:
 
 This project follow the idea of the Six Degrees of Kevin Bacon game, were anyone in the Hollywood film industry can be connected to Kevin Bacon within six steps, where each step consists of finding a film that two actors both starred in.
 
@@ -9,7 +10,7 @@ We are intererested in finding the shortest path between any two actors by choos
 
 We can frame this as a search problem: our states are people. Our actions are movies, which take us from one actor to another (it’s true that a movie could take us to multiple different actors, but that’s okay for this problem). Our initial state and goal state are defined by the two people we’re trying to connect. By using breadth-first search, we can find the shortest path from one actor to another.
 
-* Utilization:
+## Utilization:
 
 cd inside the degree folder
 
@@ -25,7 +26,7 @@ If the source and the target are connected, the terminal will show the degrees o
 
 If the souce and the target are not connected, the terminal will show Not Connected. Warning: Considering the sheer amount of information in the Csv files, it could take minutes for the program to look up to 6 degrees till it returns not connected. (tested with both of the actors named Kevin Bacon in the Large.people.csv, taking from 2 to 6 minutes)
 
-* Understanding:
+## Understanding:
 
 This project is composed of 4 main parts. degrees.py, the main program of this project and where the logic to find the shortest part is. 
 
@@ -47,7 +48,7 @@ I am not allowed to change any part of degrees.py beside the function shortest_p
 
 Apart from shortest_path, I only modified util.node.
 
-* Specification:
+## Specification:
 
 shortest_path should take as arguments the source actor and the target actor, then search throught the the three Csv files for the shortest path between both. 
 
