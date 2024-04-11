@@ -2,8 +2,11 @@ import os
 import random
 import re
 import sys
-from termcolor import colored
 import copy
+
+# For debugging purposes
+from termcolor import colored
+#
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -72,7 +75,7 @@ def transition_model(corpus, page, damping_factor):
         if page == current:
             link = links
 
-    # Number of pages the current is has a link to
+    # Number of pages the current page has a link to
     n_links = len(link)
 
     # number of total pages in corpus
@@ -140,7 +143,8 @@ def sample_pagerank(corpus, damping_factor, n):
             links_chances= transition_model(corpus,page,damping_factor)
             links = list(links_chances.keys())
             chances = list(links_chances.values())
-            # choices returns a list, so we picking only the element of that list
+            # choices returns a list(with 1 element in this case),
+            # so we picking only the element of that list
             page = random.choices(links, chances)[0]
             all_pages_rank[page] += increase
 
@@ -166,64 +170,75 @@ def iterate_pagerank(corpus, damping_factor):
     # They don't work directly on dicts, so it's better to create a list to hold the values
     all_pages = list(corpus.keys())
 
-     # Dictionary holding all pages and their rank 
-     # for the initial(and later former) interaction
+    # Dictionary holding all pages and their rank 
+    # for the initial(and later former) interaction
     all_pages_rank_past_interaction = dict()
-    initial_Rank = 1/len(corpus)
 
+    # probability of choosing a page at random
     all_pages_chance = (1-damping_factor)/len(all_pages)
 
+    # initializing the page rank of all pages
+    initial_Rank = 1/len(corpus)
     for page in corpus.keys():
         all_pages_rank_past_interaction[page] = initial_Rank
 
+    # variable to check if the difference is within the acceptable error
     acceptable_error = False
+
+    # Making a deepy copy of the initial dictionary
     all_pages_rank_new_interaction = copy.deepcopy(all_pages_rank_past_interaction) 
 
     # Sanity check:
+    # checking if the sum of all ranks are equal to 1 
+    # (not nescessary anymore, leaving for safety sake)
     Sanity_check = 0
     #
+
     while acceptable_error != True:
         acceptable_error = True
         Sanity_check = 0
 
-        for page in all_pages_rank_new_interaction.keys():
-            all_pages_rank_new_interaction[page] = all_pages_chance
+        # looping throught each page
+        for current in all_pages_rank_new_interaction.keys():
+
+            # Initializing their rank
+            all_pages_rank_new_interaction[current] = all_pages_chance
+            
+            # Variable to hold the sum of the rank based on the other pages
             total_sum = 0
             for pages,values in corpus.items():
+
+                # If this page doesn't have a link to another page
+                # It's considered that it has a link to all pages(including itself)
                 if len(values) == 0:
                     n_links = len(corpus)
-                    #print(f"all_pages_rank_past_interaction[{pages}] = {all_pages_rank_past_interaction[pages]}")
-                    #print(f"len(values) = {len(values)}")
-                    #print(colored(f"{pages}'s rank split by nº links = {all_pages_rank_past_interaction[pages]/n_links}", 'blue'))
                     total_sum += all_pages_rank_past_interaction[pages]/n_links
-
-                elif page in values:
+                
+                # If this page has links, check current page is one of them
+                elif current in values:
                     n_links = len(values)
-                    #print(f"all_pages_rank_past_interaction[{pages}] = {all_pages_rank_past_interaction[pages]}")
-                    #print(f"len(values) = {len(values)}")
-                    #print(colored(f"{pages}'s rank split by nº links = {all_pages_rank_past_interaction[pages]/n_links}", 'blue'))
+                    # If it's, add this part of the rank to total_sum
                     total_sum += all_pages_rank_past_interaction[pages]/n_links
-            #print(f"total = {total_sum}")
-            #print(f"old all_pages_rank_new_interaction[{page}] = {all_pages_rank_new_interaction[page]}")
-            all_pages_rank_new_interaction[page] += damping_factor * total_sum
-            #print(f"new all_pages_rank_new_interaction[{page}] = {all_pages_rank_new_interaction[page]}")
-            #print(colored(f"The {page}'s rank is = {all_pages_rank_new_interaction[page]}", 'yellow'))
-            Sanity_check += all_pages_rank_new_interaction[page]
 
-        # Sanity check
-        #print(f"Sanity check -> Sum of all ranks = {Sanity_check}")
-        #
+            # Multiply the total by the damping factor and add it to current's page rank
+            all_pages_rank_new_interaction[current] += damping_factor * total_sum
+            # Sum the current page's rank to the sanity check
+            Sanity_check += all_pages_rank_new_interaction[current]
 
+        # Check if any of the difference is highest then the acceptable
         for page in all_pages_rank_new_interaction.keys():
             difference = all_pages_rank_new_interaction[page] - all_pages_rank_past_interaction[page]
-            #print(f"Difference bettwen {page} is {difference}")
+
+            # If it's, repeat the while again.
             if not 0.001 > difference > -0.001:
                 acceptable_error = False
 
+        # set the past interaction to the current interaction and repeat the cicle
+        # utill the error is withing acceptable parameters
         all_pages_rank_past_interaction = copy.deepcopy(all_pages_rank_new_interaction) 
 
-        
-        if not 1.001>Sanity_check > 0.998:
+        # If sanity check is not equal to one, break and report error.
+        if not 1.002>Sanity_check > 0.998:
             print(f"sanity = {Sanity_check}")
             break
 
