@@ -115,7 +115,6 @@ def load_data(filename):
             }
     return data
 
-
 def powerset(s):
     """
     Return a list of all possible subsets of set s.
@@ -139,6 +138,46 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
+
+    chances = dict()
+    gene_count=dict()
+    for key in people.keys():
+        chances[key]=1
+        if key in one_gene:
+            gene_count[key]=1
+        if key in two_genes:
+            gene_count[key]=2
+        else:
+            gene_count[key]=0
+
+
+
+
+
+    for name,mother,father,trait in people.values():
+        if mother == None:
+            if name in have_trait:
+                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][True]
+            else:
+                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][False]
+        
+        else:
+            # chances of the father and the giving a gene or not
+            gene_chance = {mother: {"gene": 0, "no_gene": 0}, father: {"gene": 0, "no_gene": 0}}
+            gene_chance = {mother: 0, father: 0}
+
+
+            if name in have_trait:
+                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][True]
+            else:
+                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][False]
+            
+            for parent in gene_chance.keys():
+                
+
+
+
+
     raise NotImplementedError
 
 
