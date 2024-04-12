@@ -6,13 +6,13 @@ This project's objective is to create a weak Ai (Rule based Ai, one that can't a
 
 ## Utilization:
 
-cd inside Tictactoe folder.
+* cd inside Tictactoe folder.
 
-Run in the terminal: pip3 install -r requirements.txt (You only need to do this once.)
+* Run in the terminal: pip3 install -r requirements.txt (You only need to do this once.)
 
-Run in the terminal: python runner.py
+* Run in the terminal: python runner.py
 
-Choose if you want to play as X or O and play against the Ai.
+* Choose if you want to play as X or O and play against the Ai.
 
 ## Understanding:
 

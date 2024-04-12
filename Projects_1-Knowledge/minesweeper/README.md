@@ -9,21 +9,21 @@ Minesweeper is a puzzle game that consists of a grid of cells, where some of the
 
 My task is to create a Ai that is capable of playing Minesweeper.
 
-The Ai will have access to the information a player usually has. That is, all cells that were already clicked, if a cell they clicked was a mine or not, and the amount of mines in it's neighboring cells. One possible difference is that this Ai will not have access to the total amount of mines in a board. This was set by Cs50 since they didn't add that value to the Ai's arguments and they also set we shouldn't change the already present functions.
+The Ai will have access to the information a player usually has. That is, how many cells are in the board, their positions, all cells that were already clicked, if a cell they clicked was a mine or not, and the amount of mines in it's neighboring cells. One possible difference is that this Ai will not have access to the total amount of mines in a board. This was set by Cs50 since they didn't add that value to the Ai's arguments and they also set we shouldn't change the already present functions.
 
 The Ai will have to use these informations to figure out which cells are safe and which are mine, marking the latter. As the Ai will have to make random or educated guesses at the start and some points during the game, it's not expected for it to win every time.
 
 ## Utilization:
 
-cd inside minesweeper folder.
+* cd inside minesweeper folder.
 
-Run in the terminal: pip3 install -r requirements.txt (You only need to do this once.)
+* Run in the terminal: pip3 install -r requirements.txt (You only need to do this once.)
 
-run in the terminal: python runner.py
+* run in the terminal: python runner.py
 
-Play minesweeper normaly or press AI move to let the AI make a move for you. (It can play the whole game, from start to finish, on it's own, but you need to keep pressing it to let it make it's move.)
+* Play minesweeper normaly or press AI move to let the AI make a move for you. (It can play the whole game, from start to finish, on it's own, but you need to keep pressing it to let it make it's move.)
 
-## understanding:
+## Understanding:
 
 There are two main files in this project.
 

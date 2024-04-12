@@ -12,9 +12,9 @@ We can frame this as a search problem: our states are people. Our actions are mo
 
 ## Utilization:
 
-cd inside the degree folder
+* cd inside the degree folder
 
-Run in the terminal: Python degrees.py - to execute the program while using the large directory. (Given it's size, it may take a moment to fully load the large directory, use Python degrees.py small to load the small one)
+* Run in the terminal: Python degrees.py - to execute the program while using the large directory. (Given it's size, it may take a moment to fully load the large directory, use Python degrees.py small to load the small one)
 
 This you will be prompted to give the name of the source actor. If there is more then one actor with the same name, you will be showed their information and prompted to give the id of the desired one.
 
