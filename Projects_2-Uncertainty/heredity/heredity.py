@@ -115,6 +115,7 @@ def load_data(filename):
             }
     return data
 
+
 def powerset(s):
     """
     Return a list of all possible subsets of set s.
@@ -139,44 +140,136 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone not in set` have_trait` does not have the trait.
     """
 
+    # In order to avoid big tree of if, using a if for each case, I decided to work with dictionaries.
+
+    # Dictionary for the chance of a parent giving a gene, depending of their gene
+    parents_genes_prob = {
+        1: {
+            # Considered the one having the gene
+            "gene1": {
+                "passing": 1 - PROBS["mutation"],
+                "not": PROBS["mutation"],
+            },
+            # Considered the one not having the gene
+            "gene2": {
+                "passing": PROBS["mutation"],
+                "not": 1 - PROBS["mutation"],
+            },
+        },
+
+        2: {
+            "gene1": {
+                "passing": 1 - PROBS["mutation"],
+                "not": PROBS["mutation"],
+            },
+
+            "gene2": {
+                "passing": 1 - PROBS["mutation"],
+                "not": PROBS["mutation"],
+            },
+        },
+
+        0: {
+            "gene1": {
+                "passing": PROBS["mutation"],
+                "not": 1 - PROBS["mutation"],
+            },
+
+            "gene2": {
+                "passing": PROBS["mutation"],
+                "not": 1 - PROBS["mutation"],
+            }
+        },
+
+    }
+
+    # intializing the probability dictionary for each person in the family
     chances = dict()
-    gene_count=dict()
+
+    # initializing the gene count dictionary for each person in the family
+    gene_count = dict()
     for key in people.keys():
-        chances[key]=1
+        chances[key] = 1
         if key in one_gene:
-            gene_count[key]=1
-        if key in two_genes:
-            gene_count[key]=2
+            gene_count[key] = 1
+        elif key in two_genes:
+            gene_count[key] = 2
         else:
-            gene_count[key]=0
+            gene_count[key] = 0
 
+    # finding the probability of each person
+    for person_info in people.values():
+        name = person_info["name"]
+        mother = person_info["mother"]
+        father = person_info["father"]
+        # trait = person_info["trait"] - wasn't used.
 
+        # Could've also used:
+        # name, mother, father, trait = person_info.values()
 
-
-
-    for name,mother,father,trait in people.values():
+        # If father and mother is unknown
         if mother == None:
+            # use uncoditional probability
             if name in have_trait:
-                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][True]
+                chances[name] = (chances[name] *
+                                 PROBS["gene"][gene_count[name]] *
+                                 PROBS["trait"][gene_count[name]][True])
             else:
-                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][False]
-        
+                chances[name] = (chances[name] *
+                                 PROBS["gene"][gene_count[name]] *
+                                 PROBS["trait"][gene_count[name]][False])
+
+        # if the parents are known
         else:
-            # chances of the father and the giving a gene or not
-            gene_chance = {mother: {"gene": 0, "no_gene": 0}, father: {"gene": 0, "no_gene": 0}}
-            gene_chance = {mother: 0, father: 0}
 
+            # Initializing the chance of each gene matchup
+            gene_match = 1
 
-            if name in have_trait:
-                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][True]
+            # If this person is in the one_gene list
+            if gene_count[name] == 1:
+
+                # Since this can be done by receiving the gene by the mother or the father, this will be split in two.
+                gene_match1 = 1
+                gene_match2 = 1
+
+                # Chances of getting the gene from the mother and not from the father
+                gene_match1 = (gene_match1 *
+                               ((parents_genes_prob[gene_count[mother]]["gene1"]["passing"] + parents_genes_prob[gene_count[mother]]["gene2"]["passing"])/2) *
+                               ((parents_genes_prob[gene_count[father]]["gene1"]["not"] + parents_genes_prob[gene_count[father]]["gene2"]["not"])/2))
+
+                # Chances of getting the gene from the father and not from the mother
+                gene_match2 = (gene_match2 *
+                               ((parents_genes_prob[gene_count[mother]]["gene1"]["not"] + parents_genes_prob[gene_count[mother]]["gene2"]["not"])/2) *
+                               ((parents_genes_prob[gene_count[father]]["gene1"]["passing"] + parents_genes_prob[gene_count[father]]["gene2"]["passing"])/2))
+
+                # the actual change of the son/daugher having 1 gene is the sum of the chances of both cases
+                gene_match = gene_match1 + gene_match2
+
+            # If this person is in the two_genes list, they must receive a gene from both parents
+            elif gene_count[name] == 2:
+                gene_match = (gene_match *
+                              ((parents_genes_prob[gene_count[mother]]["gene1"]["passing"] + parents_genes_prob[gene_count[mother]]["gene2"]["passing"])/2) *
+                              ((parents_genes_prob[gene_count[father]]["gene1"]["passing"] + parents_genes_prob[gene_count[father]]["gene2"]["passing"])/2))
+
+            # If this person is not in any gene list, they must not receive a gene from any parents
             else:
-                chances[name] = chances[name] * PROBS["gene"][gene_count[name]] * PROBS["trait"][gene_count[name]][False]
-            
-            for parent in gene_chance.keys():
-                
+                gene_match = (gene_match *
+                              ((parents_genes_prob[gene_count[mother]]["gene1"]["not"] + parents_genes_prob[gene_count[mother]]["gene2"]["not"])/2) *
+                              ((parents_genes_prob[gene_count[father]]["gene1"]["not"] + parents_genes_prob[gene_count[father]]["gene2"]["not"])/2))
 
+            # multipling their chance of having this gene by the chance of having(or not) the trait
+            if name in have_trait:
+                chances[name] = chances[name] * gene_match * PROBS["trait"][gene_count[name]][True]
+            else:
+                chances[name] = chances[name] * gene_match * PROBS["trait"][gene_count[name]][False]
 
+    joint_probs = 1
 
+    # getting the joint probability for this family.
+    for name in chances.keys():
+        joint_probs = joint_probs * chances[name]
+
+    return joint_probs
 
     raise NotImplementedError
 
@@ -188,7 +281,20 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+
+    for person in probabilities:
+        if person in one_gene:
+            probabilities[person]["gene"][1] += p
+        elif person in two_genes:
+            probabilities[person]["gene"][2] += p
+        else:
+            probabilities[person]["gene"][0] += p
+        if person in have_trait:
+            probabilities[person]["trait"][True] += p
+        else:
+            probabilities[person]["trait"][False] += p
+
+    # raise NotImplementedError
 
 
 def normalize(probabilities):
@@ -196,7 +302,29 @@ def normalize(probabilities):
     Update `probabilities` such that each probability distribution
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
-    raise NotImplementedError
+
+    # To normalize (make sure their sum is equal to 1)
+    # all we have to do is to sum all probabilities, get the sum and then divide each probabily by that sum
+
+    for person in probabilities:
+
+        # for the genes
+        total_gene = (probabilities[person]["gene"][0]
+                      + probabilities[person]["gene"][1]
+                      + probabilities[person]["gene"][2])
+
+        probabilities[person]["gene"][0] = probabilities[person]["gene"][0]/total_gene
+        probabilities[person]["gene"][1] = probabilities[person]["gene"][1]/total_gene
+        probabilities[person]["gene"][2] = probabilities[person]["gene"][2]/total_gene
+
+        # for the trait
+        total_trait = (probabilities[person]["trait"][True] +
+                       probabilities[person]["trait"][False])
+
+        probabilities[person]["trait"][True] = probabilities[person]["trait"][True]/total_trait
+        probabilities[person]["trait"][False] = probabilities[person]["trait"][False]/total_trait
+
+    # raise NotImplementedError
 
 
 if __name__ == "__main__":
