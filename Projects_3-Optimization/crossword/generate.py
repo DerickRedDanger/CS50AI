@@ -355,7 +355,7 @@ class CrosswordCreator():
         If no assignment is possible, return None.
         """
         #print(colored(f"This backtrack's assignment is = {assignment}",'yellow'))
-
+        #
         # if the assignment dict is empty, fill it with all variables
         if not assignment:
             for x in self.crossword.variables:
