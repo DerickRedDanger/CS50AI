@@ -106,7 +106,7 @@ class CrosswordCreator():
                 if len(word) != var.length:
                     self.domains[var].remove(word)
 
-        print("Passed by enforce_node_consistency")
+        #print("Passed by enforce_node_consistency")
 
 
         # raise NotImplementedError
@@ -127,7 +127,7 @@ class CrosswordCreator():
             celly= X_overlap_Y[1]
 
         else:
-            print(colored(f"Revise returned False",'yellow'))
+            #print(colored(f"Revise returned False",'yellow'))
             return False
         
         revision = False
@@ -139,7 +139,7 @@ class CrosswordCreator():
                 self.domains[x].remove(word)
                 revision = True
 
-        print(colored(f"Revise returned {revision}",'yellow'))
+        #print(colored(f"Revise returned {revision}",'yellow'))
         return revision
 
         raise NotImplementedError
@@ -174,29 +174,33 @@ class CrosswordCreator():
         
             for X in arcs:
                 for Y in arcs:
-                    x=X[0]
-                    y=Y[0]
+                    x=(X[0])
+
+                    y=(Y[0])
+
                     if x != y:
-                        if self.crossword.overlaps(x,y):
+                        if self.crossword.overlaps[x,y]:
                             neighbors.setdefault(x, set()).add(y)
 
         debugging = arcs
 
         # while the queue has more then 0 elements
         while queue.check():
-            value = queue.dequeue()
-            x = value[0]
-            y = value[1]
+            var = queue.dequeue()
+            
+            x = var[0]
+            y = var[1]
+            #print(f" x = {x} and y = {y}")
             if y in neighbors[x]:
                 if self.revise(x,y):
                     if len(self.domains[x]) == 0:
-                        print(colored(f"Ac3 returned False for {arcs}",'yellow'))
+                        #print(colored(f"Ac3 returned False for {arcs}",'yellow'))
                         return False
                     for z in neighbors[x]:
                         if z!= y:
                             queue.enqueue((z,x))
         
-        print(colored(f"Ac3 returned True for {debugging}",'yellow'))
+        #print(colored(f"Ac3 returned True for {debugging}",'yellow'))
         return True
 
         raise NotImplementedError
@@ -206,7 +210,7 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-
+        #print(f"assignment_complete - assignment = {assignment}")
         # Returns False if any value is none, True otherwise
         return not any(value is None for value in assignment.values())
 
@@ -219,7 +223,7 @@ class CrosswordCreator():
         """
 
         # checked = set()
-
+        #print("inside consistent")
         length = {}
         for var in self.crossword.variables:
             if var in assignment.keys():
@@ -229,12 +233,17 @@ class CrosswordCreator():
             if value1 != None:
                 # If the value has a length different then the variable's
                 if len(value1) != length[key1]:
+                    #print(colored(f"Consistent returned False for assignment = {assignment}",'yellow'))
+                    #print(colored(f'len(value1) != length[key1] = {len(value1)} != {length[key1]}','red'))
+                    #print(colored(f'value1 = {value1}, [key1] ={key1}','red'))
                     return False
 
                 for key2, value2 in assignment.items():
-                    if value2 != None:
+                    if value2 != None and key1 != key2:
                         # If two values have the same strings
                         if value1 == value2:
+                            #print(colored(f"Consistent returned False for assignment = {assignment}",'yellow'))
+                            #print(colored(f'value1 == value2 = {value1} == {value2}','red'))
                             return False
                         
                         # Checking if the keys overlaps, if they do,
@@ -247,10 +256,11 @@ class CrosswordCreator():
                         
                             if value1[cellx] != value2[celly]:
 
-                                print(colored(f"Consistent returned False for assignment = {assignment}",'yellow'))
+                                #print(colored(f"Consistent returned False for assignment = {assignment}",'yellow'))
+                                #print(colored(f'value1[cellx] != value2[celly] = {value1[cellx]} != {value2[celly]}','red'))
                                 return False
                             
-        print(colored(f"Consistent returned True for assignment = {assignment}",'yellow'))
+        #print(colored(f"Consistent returned True for assignment = {assignment}",'yellow'))
         return True
 
 
@@ -271,24 +281,36 @@ class CrosswordCreator():
                 if overlap:
                     # neighbors being a list of (neighbor,((index in var),(index in neighbor)))
                     neighbors.append((options,(overlap)))
-
+        #print(f"neighbors = {neighbors}")
         domain_values = []
+        #print(f'self.domains[var] ={self.domains[var]}')
         for word in self.domains[var]:
             n = 0
             for neighbor in neighbors:
+                #print(f"self.domains[{neighbor[0]}] = {self.domains[neighbor[0]]}")
                 if word in self.domains[neighbor[0]]:
                     n += 1
                 for word2 in self.domains[neighbor[0]]:
-                    # the and is to make sure it's not double couting
+                    # the 'word != word2' is to make sure it's not double couting,
+                    # Since we already checked for word in this domains, so if we counted it back there
+                    # we'd count it again here.
                     if word[neighbor[1][0]] != word2[neighbor[1][1]] and word != word2:
                         n += 1
+            #print(f"order_domain_values - n = {n}")
             domain_values.append((word,n))
 
     
         sorted_domains = sorted(domain_values, key=lambda x:x[1])
+        cleaned_domains = []
+        #print(f"sorted_domains = {sorted_domains}")
+        for values in sorted_domains:
+            cleaned_domains.append(values[0])
+        #print(f"cleaned_domains = {cleaned_domains}")
 
-        print(colored(f"order_domain_values returned this sorted_domains = {sorted_domains}",'yellow'))
-        return sorted_domains
+
+
+        #print(colored(f"order_domain_values returned this cleaned_domains = {cleaned_domains}",'yellow'))
+        return cleaned_domains
     
         raise NotImplementedError
     def select_unassigned_variable(self, assignment):
@@ -301,20 +323,26 @@ class CrosswordCreator():
         """
 
         variable =[]
+
+        print(f"assignment.items() ={assignment.items()}")
+        print(f"assignment.keys() ={assignment.keys()}")
+        print(f"assignment.values() ={assignment.values()}")
+
         for options, words in assignment.items():
             if words == None:
                 n_values = len(self.domains[options])
                 n_neighbors = 0
+
                 for options2, words2 in assignment.items():
                     if words2 == None and options2 != options:
+
                         if self.crossword.overlaps[options,options2]:
                             n_neighbors +=1
                 variable.append((options,n_values,n_neighbors))
-
+                
         sorted_variables = sorted(variable, key=lambda x: (x[1], -x[2]))
-
-        print(colored(f"select_unassigned_variable returned this variable = {sorted_variables[0][0]}",'yellow'))
-        return sorted_variables[0][0]
+        selected_variable = sorted_variables[0][0]
+        return selected_variable
         raise NotImplementedError
 
     def backtrack(self, assignment):
@@ -326,7 +354,7 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        print(colored(f"This backtrack's assignment is = {assignment}",'yellow'))
+        #print(colored(f"This backtrack's assignment is = {assignment}",'yellow'))
 
         # if the assignment dict is empty, fill it with all variables
         if not assignment:
@@ -344,27 +372,42 @@ class CrosswordCreator():
 
             # get it's ordered domain by the number of values it rule out
             domain = self.order_domain_values(var,assignment)
+            
 
             # make a copy of the domains of all variables,
             # since revise in ac3 will modify them later
             domain_copy = self.domains
-
+            #print("saving a copy of the domain")
+            #print(colored(f"domain_copy:",'yellow'))
+            #print(domain_copy)
+            #print(colored(f"self.domains:",'yellow'))
+            #print(self.domains)
             # --------- The bug should be from here down --------#
             for value in domain:
+                #print(f"backtrack value = {value}")
+                #print(colored(f"value = {value}:",'yellow'))
                 # reset the domain, if it was modified
+                #print(colored(f"before the reset - self.domains:",'yellow'))
+                #print(self.domains)
                 self.domains = domain_copy
+                #print(colored(f"after the reset - self.domains:",'yellow'))
+                #print(self.domains)
 
                 # put that value as var's value
                 assignment[var] = value
 
                 # check if it's consistent
+                #print('checking if consistent')
                 if self.consistent(assignment):
+                    #print("Consistent")
 
                     # if it's, get all arcs
-                    arcs = get_arcs(assignment)
+                    #print(f"assignment = {assignment}")
+                    arcs = self.get_arcs(assignment)
 
                     # If there are arcs, do ac3.
                     if arcs:
+                        #print(f"arcs = {arcs}")
 
                         # If it returns false, move on to the next value
                         if not self.ac3(arcs):
@@ -372,37 +415,38 @@ class CrosswordCreator():
                     
                     # if nothing went wrong, call backtrack recursively
                     result = self.backtrack(assignment)
+                    #print(f"Result = {result}")
                     if result is not None:
                         return result
             
-            # if no value worked, remove it from assignment[var] and return None
-            assignment[var] = None
-            print(colored(f"No value worked in this backtrack",'red'))
-            return None
+        # if no value worked, remove it from assignment[var] and return None
+        assignment[var] = None
+        #print(colored(f"No value worked in this backtrack",'red'))
+        return None
                     
                         
                     
 
         raise NotImplementedError
-def get_arcs(self, assignment):
-    """
-    Gets all arcs to a assignment
-    """
-    arcs =[]
-    Variables = []
-    for var, value in assignment.items():
-        if not value:
-            Variables.append(var)
+    def get_arcs(self, assignment):
+        """
+        Gets all arcs to a assignment
+        """
+        arcs =[]
+        Variables = []
+        for var, value in assignment.items():
+            if not value:
+                Variables.append(var)
 
-    if len(Variables) > 1:
-        for var in Variables:
-            for var2 in Variables:
-                if var != var2 and self.crossword.overlaps[var,var2]:
-                    arcs.append((var,var2))
+        if len(Variables) > 1:
+            for var in Variables:
+                for var2 in Variables:
+                    if var != var2 and self.crossword.overlaps[var,var2]:
+                        arcs.append((var,var2))
 
 
-    print(colored(f"get_arcs returned {arcs}",'white'))
-    return arcs
+        #print(colored(f"get_arcs returned {arcs}",'white'))
+        return arcs
 
 class queue_2s():
     def __init__(self, queue=None):
@@ -449,7 +493,7 @@ class queue_2s():
 
     def check(self):
 
-        print(colored(f"Queue's len = {len(self.s1) + len(self.s2)}",'white'))
+        #print(colored(f"Queue's len = {len(self.s1) + len(self.s2)}",'white'))
         return len(self.s1) + len(self.s2)
                 
 class QueueEmptyError(Exception):
