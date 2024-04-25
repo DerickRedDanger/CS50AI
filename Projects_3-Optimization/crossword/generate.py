@@ -103,7 +103,7 @@ class CrosswordCreator():
         # overwriting self.domains[var] with only the elements that satisfy it's lenght
         for var in self.crossword.variables:
             self.domains[var] = {word for word in self.domains[var] if len(word) == var.length}
-        
+
         # raise NotImplementedError
 
     def revise(self, x, y):
@@ -116,19 +116,19 @@ class CrosswordCreator():
         False if no revision was made.
         """
         # check if the variables overlaps
-        X_overlap_Y = self.crossword.overlaps[x,y]
+        X_overlap_Y = self.crossword.overlaps[x, y]
 
         # if they do, get the index in each varaible that should hold the same value.
         if X_overlap_Y:
-            cellx= X_overlap_Y[0]
-            celly= X_overlap_Y[1]
+            cellx = X_overlap_Y[0]
+            celly = X_overlap_Y[1]
 
         # if they don't, we don't need to do anything and no changes were done.
         else:
             return False
-        
+
         revision = False
-        
+
         # checks for each word in X if there is a word in y that has the same letter in the
         # intersection between both. If there is, keep that word. if there isn't, remove that word.
         for word in self.domains[x].copy():
@@ -160,8 +160,8 @@ class CrosswordCreator():
             for x in self.crossword.variables:
                 for y in self.crossword.variables:
                     if x != y:
-                        if self.crossword.overlaps[x,y]:
-                            queue.append((x,y))
+                        if self.crossword.overlaps[x, y]:
+                            queue.append((x, y))
                             neighbors.setdefault(x, set()).add(y)
 
             queue = queue_2s(queue)
@@ -177,7 +177,7 @@ class CrosswordCreator():
                     neighbors[x] = set()
                     for Y in arcs:
                         for y in Y:
-                            if x != y and self.crossword.overlaps[x,y]:
+                            if x != y and self.crossword.overlaps[x, y]:
                                 neighbors[x].add(y)
 
         # while the queue has more then 0 elements
@@ -188,12 +188,12 @@ class CrosswordCreator():
             x = var[0]
             y = var[1]
             if y in neighbors[x]:
-                if self.revise(x,y):
+                if self.revise(x, y):
                     if len(self.domains[x]) == 0:
                         return False
                     for z in neighbors[x]:
-                        if z!= y:
-                            queue.enqueue((z,x))
+                        if z != y:
+                            queue.enqueue((z, x))
         return True
 
         raise NotImplementedError
@@ -218,31 +218,31 @@ class CrosswordCreator():
         # getting a dictionary with each variable in assignments as key
         # and it's length as value
         for var in assignment.keys():
-                length[var] = var.length
+            length[var] = var.length
 
         for var1, word1 in assignment.items():
-                
-                # If the value has a length different then the variable's
-                if len(word1) != length[var1]:
-                    return False
 
-                for var2, word2 in assignment.items():
-                    if var1 != var2:
-                        
-                        # If two values have the same strings
-                        if word1 == word2:
+            # If the value has a length different then the variable's
+            if len(word1) != length[var1]:
+                return False
+
+            for var2, word2 in assignment.items():
+                if var1 != var2:
+
+                    # If two values have the same strings
+                    if word1 == word2:
+                        return False
+
+                    # Checking if the keys overlaps, if they do,
+                    # check if the overlaps have the same values
+                    X_overlap_Y = self.crossword.overlaps[var1, var2]
+
+                    if X_overlap_Y:
+                        cellx = X_overlap_Y[0]
+                        celly = X_overlap_Y[1]
+
+                        if word1[cellx] != word2[celly]:
                             return False
-
-                        # Checking if the keys overlaps, if they do,
-                        # check if the overlaps have the same values
-                        X_overlap_Y = self.crossword.overlaps[var1,var2]
-
-                        if X_overlap_Y:
-                            cellx= X_overlap_Y[0]
-                            celly= X_overlap_Y[1]
-
-                            if word1[cellx] != word2[celly]:
-                                return False
 
         return True
 
@@ -259,10 +259,10 @@ class CrosswordCreator():
         neighbors = []
         for var2 in self.crossword.variables:
             if var2 not in assignment.keys() and var != var2:
-                overlap = self.crossword.overlaps[var,var2]
+                overlap = self.crossword.overlaps[var, var2]
                 if overlap:
                     # neighbors being a list of (neighbor,((index in var),(index in neighbor)))
-                    neighbors.append((var2,(overlap)))
+                    neighbors.append((var2, (overlap)))
 
         domain_values = []
         for word in self.domains[var]:
@@ -276,15 +276,15 @@ class CrosswordCreator():
                     # we'd count it again here.
                     if word[neighbor[1][0]] != word2[neighbor[1][1]] and word != word2:
                         n += 1
-            domain_values.append((word,n))
+            domain_values.append((word, n))
 
-    
-        sorted_domains = sorted(domain_values, key=lambda x:x[1])
+        sorted_domains = sorted(domain_values, key=lambda x: x[1])
         cleaned_domains = [value[0] for value in sorted_domains]
 
         return cleaned_domains
-    
+
         raise NotImplementedError
+
     def select_unassigned_variable(self, assignment):
         """
         Return an unassigned variable not already part of `assignment`.
@@ -303,13 +303,13 @@ class CrosswordCreator():
             n_neighbors = 0
             for var2 in unassigned:
                 if var1 != var2:
-                    if self.crossword.overlaps[var1,var2]:
-                        n_neighbors +=1
-            variable.append((var1,n_values,n_neighbors))
+                    if self.crossword.overlaps[var1, var2]:
+                        n_neighbors += 1
+            variable.append((var1, n_values, n_neighbors))
 
         sorted_variables = sorted(variable, key=lambda x: (x[1], -x[2]))
         selected_variable = sorted_variables[0][0]
-        
+
         return selected_variable
         raise NotImplementedError
 
@@ -332,7 +332,7 @@ class CrosswordCreator():
             var = self.select_unassigned_variable(assignment)
 
             # get it's ordered domain by the number of values it rule out
-            domain = self.order_domain_values(var,assignment)
+            domain = self.order_domain_values(var, assignment)
 
             # make a copy of the domains of all variables,
             # since revise in ac3 will modify them later
@@ -358,34 +358,35 @@ class CrosswordCreator():
                         # If it returns false, move on to the next value
                         if not self.ac3(arcs):
                             continue
-                    
+
                     # if nothing went wrong, call backtrack recursively
                     result = self.backtrack(assignment)
                     if result is not None:
                         return result
-            
+
                     # if no value worked, remove it from assignment[var] and return None
                     del assignment[var]
         return None
 
         raise NotImplementedError
+
     def get_arcs(self, assignment):
         """
         Gets all arcs to a assignment
         """
-        arcs =[]
+        arcs = []
         Variables = set()
 
         for var in self.crossword.variables:
             if var not in assignment.keys():
                 Variables.add(var)
 
-
         for var in Variables:
             for var2 in Variables:
-                if var != var2 and self.crossword.overlaps[var,var2]:
-                    arcs.append((var,var2))
+                if var != var2 and self.crossword.overlaps[var, var2]:
+                    arcs.append((var, var2))
         return arcs
+
 
 class queue_2s():
     def __init__(self, queue=None):
@@ -395,7 +396,7 @@ class queue_2s():
         A queue can be computationally costly as the list increase in size. This happens because
         poping a element that isn't the last from a list, forces python to reorganize the whole list,
         moving the elements after that element foward.
-        
+
         That's why I am using two stacks instead. we will keep appending elements to the first stack, keeping them in order.
         But when we need to dequeue elements, if S2 is already empty, we will pop elements from the first list and append them in the second list,
         So that the first element in the first list become the last in the second one, allowing us to simply pop them in order.
@@ -405,14 +406,14 @@ class queue_2s():
         self.s2 = []
 
         # if queue already exist, appens it's elements to S1, one at time
-        # this is done to make sure S1 is still a list. 
+        # this is done to make sure S1 is still a list.
         # it might not be true if we did s1 = queue.
 
         if queue:
             for element in queue:
                 self.s1.append(element)
 
-    def enqueue(self,item):
+    def enqueue(self, item):
         self.s1.append(item)
 
     def dequeue(self):
@@ -427,14 +428,16 @@ class queue_2s():
                 self.s2.append(self.s1.pop())
 
         return self.s2.pop()
-    
+
     def check(self):
         # Return the number of elements in the queue
         return len(self.s1) + len(self.s2)
-                
+
+
 class QueueEmptyError(Exception):
     def __init__(self, message="Queue is empty"):
         super().__init__(message)
+
 
 def main():
 
