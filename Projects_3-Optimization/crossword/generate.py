@@ -210,9 +210,8 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        #print(f"assignment_complete - assignment = {assignment}")
-        # Returns False if any value is none, True otherwise
-        return not any(value is None for value in assignment.values())
+        # Returns True if all var in variables are in assignments, false otherwise
+        return not any(var not in assignment.keys() for var in self.crossword.variables)
 
         raise NotImplementedError
 
@@ -274,13 +273,24 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        neighbors =[]
+
+        neighbors = []
+        for var2 in self.crossword.variables:
+            if var2 not in assignment.keys() and var != var2:
+                overlap = self.crossword.overlaps[var,var2]
+                if overlap:
+                    # neighbors being a list of (neighbor,((index in var),(index in neighbor)))
+                    neighbors.append((var2,(overlap)))
+
+        """
         for options, words in assignment.items():
             if words == None and options != var:
                 overlap = self.crossword.overlaps[var,options]
                 if overlap:
                     # neighbors being a list of (neighbor,((index in var),(index in neighbor)))
                     neighbors.append((options,(overlap)))
+        """
+
         #print(f"neighbors = {neighbors}")
         domain_values = []
         #print(f'self.domains[var] ={self.domains[var]}')
@@ -321,13 +331,27 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-
-        variable =[]
+        unassigned = []
+        variable = []
 
         print(f"assignment.items() ={assignment.items()}")
-        print(f"assignment.keys() ={assignment.keys()}")
-        print(f"assignment.values() ={assignment.values()}")
+        #print(f"assignment.keys() ={assignment.keys()}")
+        #print(f"assignment.values() ={assignment.values()}")
 
+        for var in self.crossword.variables:
+            if var not in assignment:
+                unassigned.append(var)
+
+        for var1 in unassigned:
+            n_values = len(self.domains[var1])
+            n_neighbors = 0
+            for var2 in unassigned:
+                if var1 != var2:
+                    if self.crossword.overlaps[var1,var2]:
+                        n_neighbors +=1
+            variable.append((var,n_values,n_neighbors))
+
+        """
         for options, words in assignment.items():
             if words == None:
                 n_values = len(self.domains[options])
@@ -339,6 +363,7 @@ class CrosswordCreator():
                         if self.crossword.overlaps[options,options2]:
                             n_neighbors +=1
                 variable.append((options,n_values,n_neighbors))
+        """
                 
         sorted_variables = sorted(variable, key=lambda x: (x[1], -x[2]))
         selected_variable = sorted_variables[0][0]
@@ -355,11 +380,6 @@ class CrosswordCreator():
         If no assignment is possible, return None.
         """
         #print(colored(f"This backtrack's assignment is = {assignment}",'yellow'))
-        #
-        # if the assignment dict is empty, fill it with all variables
-        if not assignment:
-            for x in self.crossword.variables:
-                assignment[x] = None
 
         # if all keys in assignment have a value and is consistent, return it
         if self.assignment_complete(assignment) and self.consistent(assignment):
@@ -382,9 +402,9 @@ class CrosswordCreator():
             #print(domain_copy)
             #print(colored(f"self.domains:",'yellow'))
             #print(self.domains)
-            # --------- The bug should be from here down --------#
+            print(colored(f"domain = {domain}",'blue'))
             for value in domain:
-                #print(f"backtrack value = {value}")
+                print(colored(f"backtrack value = {value}",'blue'))
                 #print(colored(f"value = {value}:",'yellow'))
                 # reset the domain, if it was modified
                 #print(colored(f"before the reset - self.domains:",'yellow'))
@@ -395,32 +415,37 @@ class CrosswordCreator():
 
                 # put that value as var's value
                 assignment[var] = value
+                print(f"assignment = {assignment}")
 
                 # check if it's consistent
                 #print('checking if consistent')
                 if self.consistent(assignment):
-                    #print("Consistent")
+                    print("Consistent")
 
                     # if it's, get all arcs
-                    #print(f"assignment = {assignment}")
+                    print(f"assignment = {assignment}")
                     arcs = self.get_arcs(assignment)
 
+                    #--------------------- Bug from here down -------------
                     # If there are arcs, do ac3.
                     if arcs:
+                        print('arcs')
                         #print(f"arcs = {arcs}")
 
                         # If it returns false, move on to the next value
                         if not self.ac3(arcs):
+                            print("continue")
                             continue
                     
                     # if nothing went wrong, call backtrack recursively
                     result = self.backtrack(assignment)
-                    #print(f"Result = {result}")
+                    print(f"Result = {result}")
                     if result is not None:
                         return result
             
         # if no value worked, remove it from assignment[var] and return None
-        assignment[var] = None
+        print("del")
+        del assignment[var]
         #print(colored(f"No value worked in this backtrack",'red'))
         return None
                     
@@ -434,9 +459,15 @@ class CrosswordCreator():
         """
         arcs =[]
         Variables = []
+
+        for var in self.crossword.variables:
+            if var not in assignment.keys():
+                Variables.append(var)
+        """
         for var, value in assignment.items():
             if not value:
                 Variables.append(var)
+        """
 
         if len(Variables) > 1:
             for var in Variables:
