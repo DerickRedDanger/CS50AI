@@ -94,6 +94,9 @@ def load_data(filename):
 
     with open(filename) as f:
         reader = csv.DictReader(f)
+        # using list comprehension to create a List of tuples, making a tuple so it only loops once.
+        # Since many row were being returned as str, I added the int/float to turn them in the appropriated type.
+        # other options would make the comprehension harder to understand.
         data = [(int(revenue[row["Revenue"]]), [int(row['Administrative']), float(row['Administrative_Duration']),
                                                 int(row['Informational']), float(row['Informational_Duration']),
                                                 int(row['ProductRelated']), float(row['ProductRelated_Duration']),
@@ -102,7 +105,8 @@ def load_data(filename):
                                                 int(row['Browser']), int(row['Region']), int(row['TrafficType']),
                                                 int(visitorType[row['VisitorType']]),
                                                 int(weekend[row['Weekend']])]) for row in reader]
-
+    
+    # Using Zip to unpack the list of tuples into two lists
     label, evidence = zip(*data)
 
     return evidence, label
@@ -141,8 +145,11 @@ def evaluate(labels, predictions):
     """
     sensitivity = 0
     specificity = 0
+    
+    # number of times the label returned 0 or 1
     n0 = 0
     n1 = 0
+    
     for prediction, label in zip(predictions, labels):
         if prediction == label:
             if prediction == 1:
