@@ -59,6 +59,54 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
+    # Using dictionaries to simplify the list comprehension
+    month = {
+        'Jan': 0,
+        'Feb': 1,
+        'Mar': 2,
+        'May': 3,
+        'Apr': 4,
+        'June': 5,
+        'Jul': 6,
+        'Aug': 7,
+        'Sep': 8,
+        'Oct': 9,
+        'Nov': 10,
+        'Dec': 11,
+
+    }
+
+    visitorType = {
+        'Returning_Visitor': 1,
+        'New_Visitor': 0,
+        'Other': 0,
+    }
+
+    weekend = {
+        'FALSE': 0,
+        'TRUE': 1,
+    }
+
+    revenue = {
+        'TRUE': 1,
+        'FALSE': 0,
+    }
+
+    with open(filename) as f:
+        reader = csv.DictReader(f)
+        data = [(int(revenue[row["Revenue"]]), [int(row['Administrative']), float(row['Administrative_Duration']),
+                                                int(row['Informational']), float(row['Informational_Duration']),
+                                                int(row['ProductRelated']), float(row['ProductRelated_Duration']),
+                                                float(row['BounceRates']), float(row['ExitRates']), float(row['PageValues']),
+                                                float(row['SpecialDay']), int(month[row['Month']]), int(row['OperatingSystems']),
+                                                int(row['Browser']), int(row['Region']), int(row['TrafficType']),
+                                                int(visitorType[row['VisitorType']]),
+                                                int(weekend[row['Weekend']])]) for row in reader]
+
+    label, evidence = zip(*data)
+
+    return evidence, label
+
     raise NotImplementedError
 
 
@@ -67,6 +115,12 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
+
+    model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(evidence, labels)
+
+    return model
+
     raise NotImplementedError
 
 
@@ -85,6 +139,29 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
+    sensitivity = 0
+    specificity = 0
+    n0 = 0
+    n1 = 0
+    for prediction, label in zip(predictions, labels):
+        if prediction == label:
+            if prediction == 1:
+                sensitivity += 1
+                n1 += 1
+
+            elif prediction == 0:
+                specificity += 1
+                n0 += 1
+
+        else:
+            if label == 1:
+                n1 += 1
+
+            elif label == 0:
+                n0 += 1
+
+    return (sensitivity/n1, specificity/n0)
+
     raise NotImplementedError
 
 
