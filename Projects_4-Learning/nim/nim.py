@@ -101,6 +101,13 @@ class NimAI():
         Return the Q-value for the state `state` and the action `action`.
         If no Q-value exists yet in `self.q`, return 0.
         """
+
+        # Lists can't be used in dictionaries, that's why it converted
+        # it into a tuple
+        tuple_state = tuple(state)
+
+        return self.q.get((tuple_state, action), 0)
+    
         raise NotImplementedError
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
@@ -118,7 +125,13 @@ class NimAI():
         `alpha` is the learning rate, and `new value estimate`
         is the sum of the current reward and estimated future rewards.
         """
-        raise NotImplementedError
+
+        tuple_state = tuple(state)
+
+        self.q[(tuple_state, action)] = old_q + self.alpha * ( (future_rewards + reward) - old_q)
+
+        
+        # raise NotImplementedError
 
     def best_future_reward(self, state):
         """
@@ -130,6 +143,33 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
+
+        tuple_state = tuple(state)
+
+        reward = 0
+
+        keys = []
+
+        # finding all keys that have the current state with it
+        # and save that key (state, action) in a list
+        for key in dict.keys():
+            if key[0] == tuple_state:
+                keys.append(key)
+
+        # if there are possible actions for that state.
+        if keys:
+
+            # find the highest reward
+            for key in keys:
+                if self.q[key] > reward:
+                    reward = self.q[key]
+
+            # The below is a shorter function that does the same, but decided not to use it
+            # as it creates a temporary list, instead of only using a variable
+            # reward = max(self.q[key] for key in keys)
+
+        return reward 
+    
         raise NotImplementedError
 
     def choose_action(self, state, epsilon=True):
@@ -147,6 +187,26 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
+
+        tuple_state = tuple(state)
+
+        keys = []
+        for key, value in dict.items():
+            if key[0] == tuple_state:
+                keys.append((key,value))
+
+        sorted_keys = sorted(keys, key=lambda item: item[1], reverse=True)
+
+        chance = random.random()
+
+        if chance <= 0.5:
+            # do one
+        else: 
+            # do another
+
+
+        return action 
+
         raise NotImplementedError
 
 
