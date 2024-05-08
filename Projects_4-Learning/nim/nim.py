@@ -107,7 +107,7 @@ class NimAI():
         tuple_state = tuple(state)
 
         return self.q.get((tuple_state, action), 0)
-    
+
         raise NotImplementedError
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
@@ -128,9 +128,9 @@ class NimAI():
 
         tuple_state = tuple(state)
 
-        self.q[(tuple_state, action)] = old_q + self.alpha * ( (future_rewards + reward) - old_q)
+        # following the formula to updare self.q
+        self.q[(tuple_state, action)] = old_q + self.alpha * ((future_rewards + reward) - old_q)
 
-        
         # raise NotImplementedError
 
     def best_future_reward(self, state):
@@ -146,13 +146,17 @@ class NimAI():
 
         tuple_state = tuple(state)
 
+        # Function to get all avaliable actions for a given state
+        self.get_all_actions(state)
+
+        # Initializing reward to 0.
+        # so if there are no avaliable actions, it will return the default value
         reward = 0
 
-        keys = []
-
-        # finding all keys that have the current state with it
+        # finding all keys that have the current state in it
         # and save that key (state, action) in a list
-        for key in dict.keys():
+        keys = []
+        for key in self.q.keys():
             if key[0] == tuple_state:
                 keys.append(key)
 
@@ -160,16 +164,10 @@ class NimAI():
         if keys:
 
             # find the highest reward
-            for key in keys:
-                if self.q[key] > reward:
-                    reward = self.q[key]
+            reward = max(self.q[key] for key in keys)
 
-            # The below is a shorter function that does the same, but decided not to use it
-            # as it creates a temporary list, instead of only using a variable
-            # reward = max(self.q[key] for key in keys)
+        return reward
 
-        return reward 
-    
         raise NotImplementedError
 
     def choose_action(self, state, epsilon=True):
@@ -190,25 +188,58 @@ class NimAI():
 
         tuple_state = tuple(state)
 
-        keys = []
-        for key, value in dict.items():
-            if key[0] == tuple_state:
-                keys.append((key,value))
+        self.get_all_actions(state)
 
+        # Get all actions with that state and append their key-values in a list
+        keys = []
+        for key, value in self.q.items():
+            if key[0] == tuple_state:
+                keys.append((key, value))
+
+        # sorting that list in descending order
         sorted_keys = sorted(keys, key=lambda item: item[1], reverse=True)
 
-        chance = random.random()
+        # If epsilon is true, generate a random value 0 >= chance >= 1
+        if epsilon:
+            chance = random.random()
 
-        if chance <= 0.5:
-            # do one
-        else: 
-            # do another
+            # if that value is lower or equal to self.epsilon
+            # pick a random action from that list
+            if chance <= self.epsilon:
+                choice = random.choice(sorted_keys)
+                action = choice[0][1]
 
+            # else, pick the one with highest reward
+            else:
+                choice = sorted_keys[0]
+                action = choice[0][1]
 
-        return action 
+        # If epsilon is False, pick the action wit highest reward
+        else:
+            choice = sorted_keys[0]
+            action = choice[0][1]
+
+        return action
 
         raise NotImplementedError
 
+    def get_all_actions(self,state):
+        """
+        Function made to get all possible state/action tuple for a given state
+        """
+            
+        tuple_state = tuple(state)
+
+        # Finding all possible actions for this state
+        actions = set()
+        for i, pile in enumerate(state):
+            for j in range(1, pile + 1):
+                actions.add((i, j))
+
+        # checking if these actions are in Self.Q.
+        # if they aren't, initialize them with the value 0
+        for action in actions:
+            self.q[(tuple_state, action)] = self.q.get((tuple_state, action), 0)
 
 def train(n):
     """
