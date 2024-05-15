@@ -88,4 +88,18 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
 
 ### 5º attempt:
 
-    decided to stick to 1 hidden layer and to try different amounts of Neurons
+    decided to stick to 1 hidden layer and to try different amounts of Neurons:
+    
+    result of 128:
+        last epoch - accuracy: 0.9150 - loss: 0.2927
+        Test - accuracy: 0.9318 - loss: 0.2700
+
+    result of 256:
+        last epoch - accuracy: 0.8945 - loss: 0.3585
+        Test - accuracy: 0.9127 - loss: 0.3039
+
+    result of 532:
+        last epoch - accuracy: 0.8835 - loss: 0.4030
+        Test - accuracy: 0.8920 - loss: 0.3939
+
+    Since the accuracy actually decreased when using more neurons. I've decided to stick to 128
