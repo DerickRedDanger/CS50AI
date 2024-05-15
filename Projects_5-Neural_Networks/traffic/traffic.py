@@ -58,6 +58,25 @@ def load_data(data_dir):
     be a list of integer labels, representing the categories for each of the
     corresponding `images`.
     """
+
+    labels = os.listdir(data_dir)
+    tuples = []
+
+    for label in labels:
+        Full_label_path = os.path.join(data_dir, label)
+        list_images_names = os.listdir(Full_label_path)
+        
+        for image_name in list_images_names:
+            Full_image_path = os.path.join(Full_label_path, image_name)
+            image = cv2.imread(Full_image_path)
+            if image is not None:
+                resized_img = cv2.resize(image, (IMG_WIDTH, IMG_HEIGHT))
+                tuples.append((resized_img, label))
+
+    Images, Labels = zip(*tuples)
+    
+    return Images, Labels
+
     raise NotImplementedError
 
 
@@ -67,6 +86,46 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
+
+    # Create a convolutional neural network
+    model = tf.keras.models.Sequential([
+
+    # Convolutional layer. Learn 32 filters using a 3x3 kernel
+    tf.keras.layers.Conv2D(
+        32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+    ),
+
+    # Max-pooling layer, using 3x3 pool size
+    tf.keras.layers.MaxPooling2D(pool_size=(3, 3)),
+
+
+    # Convolutional layer. Learn 96 filters using a 3x3 kernel
+    tf.keras.layers.Conv2D(
+        128, (3, 3), strides=(2, 2), activation="relu"
+    ),
+
+    # Max-overlapping-pooling layer, using 3x3 pool size with a stride of 2x2
+    tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
+
+    # Flatten units
+    tf.keras.layers.Flatten(),
+
+    # Add a hidden layer with dropout
+    tf.keras.layers.Dense(256, activation="relu"),
+    tf.keras.layers.Dropout(0.5),
+
+    # Add an output layer with output units for all categories
+    tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+    ])
+
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+        )
+
+    return model
+
     raise NotImplementedError
 
 
