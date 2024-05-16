@@ -89,6 +89,13 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
 ### 5º attempt:
 
     decided to stick to 1 hidden layer and to try different amounts of Neurons:
+    result of 64:
+        last epoch - accuracy: 0.0559 - loss: 3.4909
+        Test - accuracy: 0.0546 - loss: 3.5038
+
+    result of 96:
+        last epoch - accuracy: 0.8193 - loss: 0.5930
+        Test - accuracy: 0.9000 - loss: 0.3551
     
     result of 128:
         last epoch - accuracy: 0.9150 - loss: 0.2927
@@ -102,4 +109,87 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
         last epoch - accuracy: 0.8835 - loss: 0.4030
         Test - accuracy: 0.8920 - loss: 0.3939
 
-    Since the accuracy actually decreased when using more neurons. I've decided to stick to 128
+    Given these reseult, a single hidden layer with 128 neurons appear to be the optimal configuration.
+
+### 6º attempt:
+
+    Given how the results didn't improve whem adding more Layers or changing the number of neurons, I decided to try different activation functions. This is the same model as attempt one, only difference being that the Layer with 128 neuron are using different activation functions.
+
+    result of 128 neurons and activation function ReLU:
+        last epoch - accuracy: 0.9150 - loss: 0.2927
+        Test - accuracy: 0.9318 - loss: 0.2700
+
+    result of 128 neurons and activation function leaky ReLU:
+        last epoch - accuracy: 0.9219 - loss: 0.3029
+        Test - accuracy: 0.9347 - loss: 0.2522
+
+    result of 128 neurons and activation function parametric ReLU:
+        last epoch - accuracy: 0.9083 - loss: 0.3196
+        Test - accuracy: 0.9274 - loss: 0.2918
+
+    result of 128 neurons and activation function GeLU:
+        last epoch - accuracy: 0.8961 - loss: 0.3562
+        Test - accuracy: 0.9250 - loss: 0.2763
+    
+    result of 128 neurons and activation function Sigmoid:
+        last epoch - accuracy: 0.9581 - loss: 0.1685
+        Test - accuracy: 0.9599 - loss: 0.1481
+
+    result of 128 neurons and activation function Tanh:
+        last epoch - accuracy: 0.0572 - loss: 3.5566
+        Test - accuracy: 0.0535 - loss: 3.5239
+
+    result of 128 neurons and activation function Softmax:
+        last epoch - accuracy: 0.0547 - loss: 3.4970
+        Test - accuracy: 0.0549 - loss: 3.5071
+
+    result of 128 neurons and activation function Linear:
+        last epoch - accuracy: 0.8037 - loss: 0.6489
+        Test - accuracy: 0.8537 - loss: 0.5135
+
+    Given how well Sigmoid performed, I've decided to make it the standard from here on, while still using ReLU for comparission during the experiements with different configuration.
+
+    Also tried to use sigmoid with multiple hidden layers raging from 128/96 to 128/96/64/32, but all of them resulted on accuracy below 0.06.
+
+    Considering Sigmoid accuracy of near 96%, I believe this Project already reached a good result. But considering how this is meant to simulate the creation of an Ai for a self driving car, it also means that lives could be at stake. as Such I will try to raise this value as high as I can before considering this project finished.
+
+    Conclusion: Sigmoid showed the best accuracy compared to others activation functions, thus becoming my standard for tests from here on. ReLU is still going to be used in experiments for comparission. Despite Sigmoid reaching a accuracy for nearly 0.96, given how this project is supposed to simulate an Ai for a self driving car, I will aim to get the highest accuracy possible instead of stopping here.
+
+### 7º attempt:
+
+    will attempt testing different configurations for convolutional and pooling layers. for this testing, will use a single deep hidden layer of 128 neurons and while varying the activation fuctions betweem ReLU and Sigmoid. the standard configuration of the convolutional and pooling layers are:
+
+    1º - Convolutional layer with 32 filters, 3x3 kernel, activation Relu
+    2º - Max-pooling layer with a 3x3 pool size
+    3º - convolutional layer with 96 filters, 3x3 kernel, strides of 2x2, activation Relu
+    4º - Max-overlapping-pooling layer, 3x3 kernel and strides of 2x2 
+
+    Test with modification to the 1º layer. 2x2 Kernel:
+
+        Using Sigmoit on Hidden lyaer:
+            Last Epoch: accuracy: 0.9433 - loss: 0.2030
+            Test: accuracy: 0.9457 - loss: 0.1829
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.8166 - loss: 0.5957
+            Test: accuracy: 0.8826 - loss: 0.3940
+
+    Test with modification to the 1º layer. 5x5 Kernel:
+
+        Using Sigmoit on Hidden lyaer:
+            Last Epoch: accuracy: 0.0525 - loss: 3.5178
+            Test: accuracy: 0.0572 - loss: 3.5163
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.8909 - loss: 0.3799
+            Test: accuracy: 0.9135 - loss: 0.3264
+
+    Test with modification to the 1º layer. 7x7 Kernel:
+
+        Using Sigmoit on Hidden lyaer:
+            Last Epoch: accuracy: 0.0505 - loss: 3.5331
+            Test: accuracy: 0.0540 - loss: 3.5149
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.6100 - loss: 1.2418
+            Test: accuracy: 0.6957 - loss: 0.9626
