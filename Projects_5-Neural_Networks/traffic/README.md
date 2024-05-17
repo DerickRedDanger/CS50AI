@@ -155,18 +155,18 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
 
     Conclusion: Sigmoid showed the best accuracy compared to others activation functions, thus becoming my standard for tests from here on. ReLU is still going to be used in experiments for comparission. Despite Sigmoid reaching a accuracy for nearly 0.96, given how this project is supposed to simulate an Ai for a self driving car, I will aim to get the highest accuracy possible instead of stopping here.
 
-### 7º attempt:
+### 7º attempt - changing the first convolutional layer - 1º layer:
 
-    will attempt testing different configurations for convolutional and pooling layers. for this testing, will use a single deep hidden layer of 128 neurons and while varying the activation fuctions betweem ReLU and Sigmoid. the standard configuration of the convolutional and pooling layers are:
+    From here on, will attempt testing different configurations for convolutional and pooling layers. for this testing, will use a single deep hidden layer of 128 neurons and while varying the activation fuctions betweem ReLU and Sigmoid. the standard configuration of the convolutional and pooling layers are:
 
-    1º - Convolutional layer with 32 filters, 3x3 kernel, activation Relu
-    2º - Max-pooling layer with a 3x3 pool size
-    3º - convolutional layer with 96 filters, 3x3 kernel, strides of 2x2, activation Relu
-    4º - Max-overlapping-pooling layer, 3x3 kernel and strides of 2x2 
+    1º layer - Convolutional layer with 32 filters, 3x3 kernel, activation Relu
+    2º layer - Max-pooling layer with a 3x3 pool size
+    3º layer - convolutional layer with 96 filters, 3x3 kernel, strides of 2x2, activation Relu
+    4º layer - Max-overlapping-pooling layer, 3x3 kernel and strides of 2x2 
 
-    Test with modification to the 1º layer. 2x2 Kernel:
+* Test with modification to the 1º layer. 2x2 Kernel - ReLU:
 
-        Using Sigmoit on Hidden lyaer:
+        Using Sigmoid on Hidden lyaer:
             Last Epoch: accuracy: 0.9433 - loss: 0.2030
             Test: accuracy: 0.9457 - loss: 0.1829
 
@@ -174,9 +174,19 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
             Last Epoch: accuracy: 0.8166 - loss: 0.5957
             Test: accuracy: 0.8826 - loss: 0.3940
 
-    Test with modification to the 1º layer. 5x5 Kernel:
+* Test with standard values to the 1º layer. 3x3 Kernel - ReLU:
 
-        Using Sigmoit on Hidden lyaer:
+        Using Sigmoid on Hidden lyaer:
+            Last Epoch: accuracy: 0.9607 - loss: 0.1480
+            Test: accuracy: 0.9680 - loss: 0.1207
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.8966 - loss: 0.3599
+            Test: accuracy: 0.9249 - loss: 0.2803
+
+* Test with modification to the 1º layer. 5x5 Kernel - ReLU:
+
+        Using Sigmoid on Hidden lyaer:
             Last Epoch: accuracy: 0.0525 - loss: 3.5178
             Test: accuracy: 0.0572 - loss: 3.5163
 
@@ -184,12 +194,126 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
             Last Epoch: accuracy: 0.8909 - loss: 0.3799
             Test: accuracy: 0.9135 - loss: 0.3264
 
-    Test with modification to the 1º layer. 7x7 Kernel:
+* Test with modification to the 1º layer. 7x7 Kernel - ReLU:
 
-        Using Sigmoit on Hidden lyaer:
+        Using Sigmoid on Hidden lyaer:
             Last Epoch: accuracy: 0.0505 - loss: 3.5331
             Test: accuracy: 0.0540 - loss: 3.5149
 
         Using ReLU on Hidden lyaer:
             Last Epoch: accuracy: 0.6100 - loss: 1.2418
             Test: accuracy: 0.6957 - loss: 0.9626
+
+#### Tests changing the 1º layer from ReLU to Sigmoid:
+
+* Test with modification to the 1º layer. 2x2 Kernel - Sigmoid:
+
+        Using Sigmoid on Hidden lyaer:
+            Last Epoch: accuracy: 0.8790 - loss: 0.3970
+            Test: accuracy: 0.8995 - loss: 0.3292
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.8848 - loss: 0.3660
+            Test: accuracy: 0.9017 - loss: 0.3121
+
+* Test with standard values to the 1º layer. 3x3 Kernel - Sigmoid:
+
+        Using Sigmoid on Hidden lyaer:
+            Last Epoch: accuracy: 0.9057 - loss: 0.3205
+            Test: accuracy: 0.9417 - loss: 0.2108
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.8712 - loss: 0.4158
+            Test: accuracy: 0.9004 - loss: 0.3099
+
+* Test with modification to the 1º layer. 5x5 Kernel - Sigmoid:
+
+        Using Sigmoid on Hidden lyaer:
+            Last Epoch: accuracy: 0.7838 - loss: 0.6965
+            Test: accuracy: 0.7994 - loss: 0.6118
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: accuracy: 0.8909 - loss: 0.3799
+            Test: accuracy: 0.9135 - loss: 0.3264
+
+* Test with modification to the 1º layer. 7x7 Kernel - Sigmoid:
+
+        Using Sigmoid on Hidden lyaer:
+            Last Epoch: accuracy: 0.5740 - loss: 1.30431
+            Test: accuracy: 0.6712 - loss: 1.0556
+
+        Using ReLU on Hidden lyaer:
+            Last Epoch: 0.2984 - loss: 2.1921 
+            Test: accuracy: 0.3558 - loss: 1.9896
+
+#### Conclusion:
+
+    Using the ReLU activation on the first layer yielded better results then Sigmoid on the standard case, meanwhile sigmoid yielded better results on all the other cases. This might be because ReLU have the dying neuron problem, were a neuron outputs 0 during training, thus being unable to be updated and effectively 'dying' during training.
+
+    On the other hand, despite the initial expectations that using a filter with a larger kernel on the 1º layer would yield better results (since it would allow the program to capture larger or more complex patterns in the input image), it ended up reducing my program's accuracy. I believe this is happening because the images used are only 30x30, so using a larger Kernel might be capturing too much, losing important details. 
+
+    Despite sigmoid yielding better results in general, none of them came close to the result ReLU yielded with the standard values, so I will continue to focus on the standard case, but may switch to Sigmoid to try alternatives some times.
+
+### 8º attempt - changing the first pooling - 2º layer:
+
+    Using the standard case as base, I will try changing the dize of the pooling and it's kind to check how that will affect the accuracy.
+
+* Test with modification - Max pooling using 2x2
+        accuracy: 0.0549 - loss: 3.5379
+        accuracy: 0.0583 - loss: 3.4997
+
+* Test with standard case - Max pooling using 3x3
+        accuracy: 0.9635 - loss: 0.1318
+        accuracy: 0.9660 - loss: 0.1273
+
+* Test with modification - Max pooling using 4x4
+        accuracy: 0.0558 - loss: 3.5153
+        accuracy: 0.0563 - loss: 3.5071
+
+* Test with modification - averange pooling using 2x2
+        accuracy: 0.0507 - loss: 3.5351
+        accuracy: 0.0522 - loss: 3.5077
+
+* Test with modification - averange pooling using 3x3
+        accuracy: 0.9622 - loss: 0.1507
+        accuracy: 0.9680 - loss: 0.1131
+
+* Test with modification - averange pooling using 4x4
+        accuracy: 0.9577 - loss: 0.1641
+        accuracy: 0.9644 - loss: 0.1279
+
+    There were also the option of using Global max/averange Pooling, but as these reduce the feature of the whole map to a single value, it would lead to a too much loss of spatial information as the first pooling layers. So I will only test it on the second layer.
+
+#### Conclusion:
+
+    Averange pooling gave similar result for using a kernel with 3x3, but still allowed good values in 4x4, So I will use it instead of maxpooling for the following tests.
+
+### 9º attempt - Changing the second convolution - 3° layer
+
+    In order to be able to make the most from the information gathered from the first convolution, I decided to use 128 filters to gather as much information as possible, while using strides (reducing the steps from the pool size to the size of the stride) to ensure my Ai isn't missing any information.
+
+    Here I will try to change the number of filters, the activation function and whether I should keep or remove the strides.
+
+* Test with standard case - 128 filters, 3x3 Kernel, 2x2 strides, activation ReLU:
+    accuracy: 0.9537 - loss: 0.1682
+    accuracy: 0.9608 - loss: 0.1386
+
+* Test with modified case - 128 filters, 3x3 Kernel, 2x2 strides, activation Sigmoid:
+    accuracy: 0.8925 - loss: 0.3892
+    accuracy: 0.9293 - loss: 0.2828
+
+* Test with modified case - 128 filters, 3x3 Kernel, No stride, activation ReLU:
+    accuracy: 0.0542 - loss: 3.5247
+    accuracy: 0.0512 - loss: 3.5121
+
+* Test with modified case - 128 filters, 3x3 Kernel, No stride, activation Sigmoid:
+    accuracy: 0.9821 - loss: 0.0852
+    accuracy: 0.9831 - loss: 0.0637
+
+    After this result, I looked up and realized that convolutional layers actualyl work with a stride of 1x1, and not a stride equal to it's kernel (like the pooling). So by using a stride, I was actually losing information instead of preserving it. so from this point on I stopped using strides in my convolution.
+
+    On the same note, all my tries with no stride using ReLu led to accuracy lower then 0.06, So i stopped using ReLU and focused on Sigmoid.
+
+* Test with modified case - 258 filters, 3x3 Kernel, No stride, activation Sigmoid:
+    accuracy: 0.9906 - loss: 0.0479
+    accuracy: 0.9920 - loss: 0.0277
