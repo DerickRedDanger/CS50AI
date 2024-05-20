@@ -259,28 +259,28 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
     Using the standard case as base, I will try changing the dize of the pooling and it's kind to check how that will affect the accuracy.
 
 * Test with modification - Max pooling using 2x2
-        accuracy: 0.0549 - loss: 3.5379
-        accuracy: 0.0583 - loss: 3.4997
+        Last Epoch: accuracy: 0.0549 - loss: 3.5379
+        Test: accuracy: 0.0583 - loss: 3.4997
 
 * Test with standard case - Max pooling using 3x3
-        accuracy: 0.9635 - loss: 0.1318
-        accuracy: 0.9660 - loss: 0.1273
+        Last Epoch: accuracy: 0.9635 - loss: 0.1318
+        Test: accuracy: 0.9660 - loss: 0.1273
 
 * Test with modification - Max pooling using 4x4
-        accuracy: 0.0558 - loss: 3.5153
-        accuracy: 0.0563 - loss: 3.5071
+        Last Epoch: accuracy: 0.0558 - loss: 3.5153
+        Test: accuracy: 0.0563 - loss: 3.5071
 
 * Test with modification - averange pooling using 2x2
-        accuracy: 0.0507 - loss: 3.5351
-        accuracy: 0.0522 - loss: 3.5077
+        Last Epoch: accuracy: 0.0507 - loss: 3.5351
+        Test: accuracy: 0.0522 - loss: 3.5077
 
 * Test with modification - averange pooling using 3x3
-        accuracy: 0.9622 - loss: 0.1507
-        accuracy: 0.9680 - loss: 0.1131
+        Last Epoch: accuracy: 0.9622 - loss: 0.1507
+        Test: accuracy: 0.9680 - loss: 0.1131
 
 * Test with modification - averange pooling using 4x4
-        accuracy: 0.9577 - loss: 0.1641
-        accuracy: 0.9644 - loss: 0.1279
+        Last Epoch: accuracy: 0.9577 - loss: 0.1641
+        Test: accuracy: 0.9644 - loss: 0.1279
 
     There were also the option of using Global max/averange Pooling, but as these reduce the feature of the whole map to a single value, it would lead to a too much loss of spatial information as the first pooling layers. So I will only test it on the second layer.
 
@@ -295,25 +295,81 @@ For my first attempt I used as base the examples given in Cs50Ai video and it's 
     Here I will try to change the number of filters, the activation function and whether I should keep or remove the strides.
 
 * Test with standard case - 128 filters, 3x3 Kernel, 2x2 strides, activation ReLU:
-    accuracy: 0.9537 - loss: 0.1682
-    accuracy: 0.9608 - loss: 0.1386
+    Last Epoch: accuracy: 0.9537 - loss: 0.1682
+    Test: accuracy: 0.9608 - loss: 0.1386
 
 * Test with modified case - 128 filters, 3x3 Kernel, 2x2 strides, activation Sigmoid:
-    accuracy: 0.8925 - loss: 0.3892
-    accuracy: 0.9293 - loss: 0.2828
+    Last Epoch: accuracy: 0.8925 - loss: 0.3892
+    Test: accuracy: 0.9293 - loss: 0.2828
 
 * Test with modified case - 128 filters, 3x3 Kernel, No stride, activation ReLU:
-    accuracy: 0.0542 - loss: 3.5247
-    accuracy: 0.0512 - loss: 3.5121
+    Last Epoch: accuracy: 0.0542 - loss: 3.5247
+    Test: accuracy: 0.0512 - loss: 3.5121
 
 * Test with modified case - 128 filters, 3x3 Kernel, No stride, activation Sigmoid:
-    accuracy: 0.9821 - loss: 0.0852
-    accuracy: 0.9831 - loss: 0.0637
+    Last Epoch: accuracy: 0.9821 - loss: 0.0852
+    Test: accuracy: 0.9831 - loss: 0.0637
 
     After this result, I looked up and realized that convolutional layers actualyl work with a stride of 1x1, and not a stride equal to it's kernel (like the pooling). So by using a stride, I was actually losing information instead of preserving it. so from this point on I stopped using strides in my convolution.
 
     On the same note, all my tries with no stride using ReLu led to accuracy lower then 0.06, So i stopped using ReLU and focused on Sigmoid.
 
 * Test with modified case - 258 filters, 3x3 Kernel, No stride, activation Sigmoid:
-    accuracy: 0.9906 - loss: 0.0479
-    accuracy: 0.9920 - loss: 0.0277
+    Last Epoch: accuracy: 0.9906 - loss: 0.0479
+    Test: accuracy: 0.9920 - loss: 0.0277
+
+    Upon reaching an accuracy of 0.99 on both test and last epoch, I decided to do more tests on this configuration. Checking other metrics and the time it takes to run a prediction. To achieve this I've made the following changes to my Model.compile:
+
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()]
+        )
+
+    While I did the following to get a random x_test and make it's prediction to check how long it takes for my program to run a single prediction, since for a self driving car, I belive the program need to have the highest accuracy possible while still being relatively quick.
+
+    test = random.choice(x_test)
+    test = np.expand_dims(test, axis=0)
+    predictions = model.predict(test)
+
+    Below are the result, as is, from the terminal (the words 'Test' and 'Prediction' were added for clarification):
+
+    Epoch 10/10:
+    500/500 ━━━━━━━━━━━━━━━━━━━━ 4s 8ms/step - accuracy: 0.9877 - loss: 0.0575 - precision: 0.9911 - recall: 0.9831  
+
+    Test:
+    333/333 - 1s - 4ms/step - accuracy: 0.9916 - loss: 0.0334 - precision: 0.9929 - recall: 0.9899
+
+    Prediction:
+    1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 57ms/step
+
+#### Conclusion:
+    Meanwhile 258 filters might indeed be exessive, that number allowed the Ai to increase the accuracy from 0.98 to 0.99, with some tests reaching accuracy of 0.997. Given the importance of accuracy to a Ai that is guiding a car (and consequently may have lives at stakes) I believe that his is a worth trade off. And while initially worried about how computionally costly or slow this prediction would and up running, I believe that utilizing 0.057 seconds to run a prediction is fast enough. As such, meanwhile I will run additional tests for learning sake, This is going to be the configuration i am going to commit.
+
+### 10º attempt - automate training:
+
+    After some discussions with Cs50 Duck debugger Ai, I got the idea to change my fit function to stop when a epoch's accuracy reaches 0.995. In order to do that i did the following modifications:
+
+    created a new class:
+
+    class MyCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch=EPOCHS, logs=None):
+        if logs.get('accuracy') > 0.995:
+            self.model.stop_training = True
+
+    and modified the fit function to :
+    model.fit(x_train, y_train, epochs=EPOCHS,callbacks=[MyCallback()])
+
+    Changing my Epochs from 10 to 100 let me to the following result:
+    Epoch 29/100:
+500/500 ━━━━━━━━━━━━━━━━━━━━ 4s 7ms/step - accuracy: 0.9968 - loss: 0.0131 - precision: 0.9971 - recall: 0.9963 
+
+    Test:
+    333/333 - 1s - 3ms/step - accuracy: 0.9951 - loss: 0.0165 - precision: 0.9970 - recall: 0.9946
+
+    Prediction:
+    1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 57ms/step
+
+    Wanting to go one step further, I decided to use a loop to automitize my training, as such that it would train an Ai multiple times, immediately dropping and reseting when it gets stuck in a accuracy below 0.06, or reseting after reaching the last epoch but not reaching an accuracy of 0.995. But saving stopping and saving that Ai upon reaching said accuracy.
+
+    Since theses modifications go agaisn't Cs50 guidance of not changing anything in the code beside the funtions I am supposed to implement, aditionals functions I could create to assist me or the initial variables (EPOCHS,IMG_WIDTH,IMG_HEIGHT, NUM_CATEGORIES, TEST_SIZE). I will, intead, creating this program in another file.
