@@ -21,7 +21,7 @@ EPOCHS = 100
 MAX_EPOCHES = 500
 
 # Variable to decide how many times a model can be retrained in a row before being reset
-MAX_TRAINING_ROW = 10
+MAX_TRAINING_ROW = 100
 
 # Max number of times a model can be reseted before stopping the program
 MAX_RESETS = 50
@@ -48,34 +48,17 @@ def main():
         np.array(images), np.array(labels), test_size=TEST_SIZE
     )
 
-    # original part of Traffic
-    """
-    # Get a compiled neural network
-    model = get_model()
-
-    # Fit model on training data
-    model.fit(x_train, y_train, epochs=EPOCHS,callbacks=[MyCallback()])
-
-    # Evaluate neural network performance
-    model.evaluate(x_test,  y_test, verbose=2)
-
-    ## Student made
-    # making a prediction to check how long it tooks to make a prediction
-    test = random.choice(x_test)
-    test = np.expand_dims(test, axis=0)
-    predictions = model.predict(test)
-    """
-    # test
-
-    # Setting the Reset and train to true
+    # Initializing my variables
     Continue_reseting = True
     Continue_training = True
     Number_of_resets = 0
     Save_Ai = False
 
     while Continue_reseting:
+        
         model = get_model()
         Number_of_resets += 1
+        print(f"This is the reset number {Number_of_resets}")
 
         # If the model was reseted MAX_RESETS times, stop reseting
         if Number_of_resets >= MAX_RESETS:
@@ -93,17 +76,22 @@ def main():
             # Create a interation of MyCallback, needs to be reseted on each training
             # to reset it's Total_number_of_training attribute
             Callback = MyCallback()
+            N_training += 1
+            print(f"This is the reset nº {Number_of_resets}'s {N_training}º training")
             history = model.fit(x_train, y_train, epochs=EPOCHS,callbacks=[Callback])
             
             # Get the accuracy of the lastest Epoch
             last_epoch_accuracy = history.history['accuracy'][-1]
 
-            N_training += 1
+            
             # If accuracy is lower then TRAINING_ACCURACY, reset the model
             if last_epoch_accuracy < TRAINING_ACCURACY:
+                print(f"Last epoch's accuracy {last_epoch_accuracy} < Training accuracy {TRAINING_ACCURACY}")
                 break
-            
+            else:
+                print(f"Last epoch's accuracy {last_epoch_accuracy} >= Training accuracy {TRAINING_ACCURACY}")
             # otherwise, evaluate it
+            #test_loss, test_acc = model.evaluate(x_test,  y_test, verbose=2)
             test_loss, test_acc, test_prec, test_recall = model.evaluate(x_test,  y_test, verbose=2)
             #print (f"test_loss = {test_loss}")
             print (f"test_acc = {test_acc}")
@@ -121,17 +109,17 @@ def main():
                 Save_Ai = True
                 break
 
-    if Continue_reseting == False and Continue_training == False and  Save_Ai == False:
-        print(f"This model was reseted {MAX_RESETS} times")
-        print(f"But didn't manage to reach both Last epoch accuracy of {TRAINING_ACCURACY}")
-        print(f"And the test accuracy of {TEST_ACCURACY}")
+        if Continue_reseting == False and  Save_Ai == False:
+            print(f"This model was reseted {MAX_RESETS} times")
+            print(f"But didn't manage to reach both Last epoch accuracy of {TRAINING_ACCURACY}")
+            print(f"And the test accuracy of {TEST_ACCURACY}")
 
 
-    # Save model to file
-    if len(sys.argv) == 3 and Save_Ai:
-        filename = sys.argv[2]
-        model.save(filename)
-        print(f"Model saved to {filename}.")
+        # Save model to file
+        if len(sys.argv) == 3 and Save_Ai:
+            filename = sys.argv[2]
+            model.save(filename)
+            print(f"Model saved to {filename}.")
 
 
 def load_data(data_dir):
@@ -211,9 +199,9 @@ def get_model():
     model.compile(
         optimizer="adam",
         loss="categorical_crossentropy",
-        metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()]
+        metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()],
         )
-
+    #        metrics=['accuracy']
     return model
 
     raise NotImplementedError

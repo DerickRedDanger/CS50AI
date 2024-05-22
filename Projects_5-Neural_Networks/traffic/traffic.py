@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 import random
 
-EPOCHS = 100
+EPOCHS = 10
 IMG_WIDTH = 30
 IMG_HEIGHT = 30
 NUM_CATEGORIES = 43
