@@ -17,7 +17,7 @@ TEST_SIZE = 0.4
 # Variable to decide the maximal number of Epoches a single training can have
 EPOCHS = 100
 
-# Variable to decide the maximal number of total Epoches a model can be retrained with 
+# Variable to decide the maximal number of total Epoches a model can be retrained with
 MAX_EPOCHES = 500
 
 # Variable to decide how many times a model can be retrained in a row before being reset
@@ -55,7 +55,7 @@ def main():
     Save_Ai = False
 
     while Continue_reseting:
-        
+
         model = get_model()
         Number_of_resets += 1
         print(f"This is the reset number {Number_of_resets}")
@@ -63,7 +63,7 @@ def main():
         # If the model was reseted MAX_RESETS times, stop reseting
         if Number_of_resets >= MAX_RESETS:
             Continue_reseting = False
-        
+
         # keep track of the number of times a Ai was re-trained
         N_training = 0
 
@@ -72,18 +72,17 @@ def main():
             # If this Ai was retrained too much, break and reset
             if N_training >= MAX_TRAINING_ROW:
                 break
-            
+
             # Create a interation of MyCallback, needs to be reseted on each training
             # to reset it's Total_number_of_training attribute
             Callback = MyCallback()
             N_training += 1
             print(f"This is the reset nº {Number_of_resets}'s {N_training}º training")
-            history = model.fit(x_train, y_train, epochs=EPOCHS,callbacks=[Callback])
-            
+            history = model.fit(x_train, y_train, epochs=EPOCHS, callbacks=[Callback])
+
             # Get the accuracy of the lastest Epoch
             last_epoch_accuracy = history.history['accuracy'][-1]
 
-            
             # If accuracy is lower then TRAINING_ACCURACY, reset the model
             if last_epoch_accuracy < TRAINING_ACCURACY:
                 print(f"Last epoch's accuracy {last_epoch_accuracy} < Training accuracy {TRAINING_ACCURACY}")
@@ -91,29 +90,28 @@ def main():
             else:
                 print(f"Last epoch's accuracy {last_epoch_accuracy} >= Training accuracy {TRAINING_ACCURACY}")
             # otherwise, evaluate it
-            #test_loss, test_acc = model.evaluate(x_test,  y_test, verbose=2)
+            # test_loss, test_acc = model.evaluate(x_test,  y_test, verbose=2)
             test_loss, test_acc, test_prec, test_recall = model.evaluate(x_test,  y_test, verbose=2)
-            #print (f"test_loss = {test_loss}")
-            print (f"test_acc = {test_acc}")
-            #print (f"test_prec = {test_prec}")
-            #print (f"test_recall = {test_recall}")
+            # print (f"test_loss = {test_loss}")
+            print(f"test_acc = {test_acc}")
+            # print (f"test_prec = {test_prec}")
+            # print (f"test_recall = {test_recall}")
 
             # if the test's accuracy is lowe then TEST_ACCURACY, train this model again
             if test_acc < TEST_ACCURACY:
                 continue
-            
+
             # if TEST_ACCURACY or higher, break and save the Ai (if a name was given to it)
-            else :
+            else:
                 Continue_reseting = False
                 Continue_training = False
                 Save_Ai = True
                 break
 
-        if Continue_reseting == False and  Save_Ai == False:
+        if Continue_reseting == False and Save_Ai == False:
             print(f"This model was reseted {MAX_RESETS} times")
             print(f"But didn't manage to reach both Last epoch accuracy of {TRAINING_ACCURACY}")
             print(f"And the test accuracy of {TEST_ACCURACY}")
-
 
         # Save model to file
         if len(sys.argv) == 3 and Save_Ai:
@@ -143,7 +141,7 @@ def load_data(data_dir):
     for label in labels:
         Full_label_path = os.path.join(data_dir, label)
         list_images_names = os.listdir(Full_label_path)
-        
+
         for image_name in list_images_names:
             Full_image_path = os.path.join(Full_label_path, image_name)
             image = cv2.imread(Full_image_path)
@@ -152,7 +150,7 @@ def load_data(data_dir):
                 tuples.append((resized_img, label))
 
     Images, Labels = zip(*tuples)
-    
+
     return Images, Labels
 
     raise NotImplementedError
@@ -168,43 +166,44 @@ def get_model():
     # Create a convolutional neural network
     model = tf.keras.models.Sequential([
 
-    # Convolutional layer. Learn 32 filters using a 3x3 kernel
-    tf.keras.layers.Conv2D(
-        32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
-    ),
+        # Convolutional layer. Learn 32 filters using a 3x3 kernel
+        tf.keras.layers.Conv2D(
+            32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
 
-    # averange - pooling layer, using 3x3 pool size
-    tf.keras.layers.AveragePooling2D(pool_size=(3, 3)),
+        # averange - pooling layer, using 3x3 pool size
+        tf.keras.layers.AveragePooling2D(pool_size=(3, 3)),
 
 
-    # Convolutional layer. Learn 258 filters using a 3x3 kernel
-    tf.keras.layers.Conv2D(
-        258, (3, 3), activation="sigmoid"
-    ),
+        # Convolutional layer. Learn 258 filters using a 3x3 kernel
+        tf.keras.layers.Conv2D(
+            258, (3, 3), activation="sigmoid"
+        ),
 
-    # Max-overlapping-pooling layer, using 3x3 pool size with a stride of 2x2
-    tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
+        # Max-overlapping-pooling layer, using 3x3 pool size with a stride of 2x2
+        tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
 
-    # Flatten units
-    tf.keras.layers.Flatten(),
+        # Flatten units
+        tf.keras.layers.Flatten(),
 
-    # Add a hidden layer with 128 neurons and dropout of 0.5
-    tf.keras.layers.Dense(128, activation="sigmoid"),
-    tf.keras.layers.Dropout(0.5),
+        # Add a hidden layer with 128 neurons and dropout of 0.5
+        tf.keras.layers.Dense(128, activation="sigmoid"),
+        tf.keras.layers.Dropout(0.5),
 
-    # Add an output layer with output units for all categories
-    tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+        # Add an output layer with output units for all categories
+        tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
     ])
 
     model.compile(
         optimizer="adam",
         loss="categorical_crossentropy",
         metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()],
-        )
+    )
     #        metrics=['accuracy']
     return model
 
     raise NotImplementedError
+
 
 class MyCallback(tf.keras.callbacks.Callback):
     def __init__(self):
