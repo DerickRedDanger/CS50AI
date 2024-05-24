@@ -34,10 +34,10 @@ def main():
     model = get_model()
 
     # Fit model on training data
-    model.fit(x_train, y_train, epochs=EPOCHS, callbacks=[MyCallback()])
+    model.fit(x_train, y_train, batch_size=32, epochs=EPOCHS, callbacks=[MyCallback()])
 
     # Evaluate neural network performance
-    model.evaluate(x_test,  y_test, verbose=2)
+    model.evaluate(x_test,  y_test, batch_size=32, verbose=2)
 
     # Student made
     # making a prediction to check how long it tooks to make a prediction

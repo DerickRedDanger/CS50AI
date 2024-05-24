@@ -73,8 +73,9 @@ def main():
             if N_training >= MAX_TRAINING_ROW:
                 break
 
-            # Create a interation of MyCallback, needs to be reseted on each training
-            # to reset it's Total_number_of_training attribute
+            # Create a interation of MyCallback, 
+            # needs to be reset each time the model is reset
+            # to restart it's Total_number_of_training attribute
             Callback = MyCallback()
             N_training += 1
             print(f"This is the reset nº {Number_of_resets}'s {N_training}º training")
@@ -89,15 +90,15 @@ def main():
                 break
             else:
                 print(f"Last epoch's accuracy {last_epoch_accuracy} >= Training accuracy {TRAINING_ACCURACY}")
-            # otherwise, evaluate it
-            # test_loss, test_acc = model.evaluate(x_test,  y_test, verbose=2)
+            
+            # Otherwise, evaluate it
             test_loss, test_acc, test_prec, test_recall = model.evaluate(x_test,  y_test, verbose=2)
             # print (f"test_loss = {test_loss}")
             print(f"test_acc = {test_acc}")
             # print (f"test_prec = {test_prec}")
             # print (f"test_recall = {test_recall}")
 
-            # if the test's accuracy is lowe then TEST_ACCURACY, train this model again
+            # if the test's accuracy is lower then TEST_ACCURACY, train this model again
             if test_acc < TEST_ACCURACY:
                 continue
 
