@@ -15,12 +15,12 @@ V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S ->  NP VP | VP NP VP NP | NP VP NP VP NP VP
+S -> S S | S Conj S | NP VP NP | NP VP | NP VP PP NP | VP NP NP | VP NP | NP VP PP | NP VP NP PP
 
 AP -> Adj | Adj AP
-NP -> N | P Det NP | Det NP | AP NP | N PP
-PP -> P NP
-VP -> V | V NP | V NP PP
+NP -> N | Det N | Det AP N | Det N Adv | Det N PP | PP Det AP N | PP N | Det AP N PP
+PP -> P NP | P | 
+VP -> V | Adv V | V Adv
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -85,22 +85,32 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
+
+    ##################
+    """
     chunks = list(tree.subtrees(lambda t: t.label() == "NP"))
-    
+    nouns = list(tree.subtrees(lambda t: t.label() == "N"))
     
     np_chunks = []
-    for chunk1 in chunks:
-        #string1 = chunk1.pformat()
+    for chunk in chunks:
         append = True
-        for chunk2 in chunks:
-            #string2 = chunk2.pformat()
-            #if string1 != string2 and string2 in string1:
-            if chunk1 != chunk2 and chunk2 in chunk1.subtrees():
+        for chunk_in_list in np_chunks:
+            if chunk != chunk_in_list and chunk in chunk_in_list.subtrees():
                 append = False
                 break
-        if append:
-            np_chunks.append(chunk1)
 
+        n_nouns = 0
+        for noun in nouns:
+            if noun in chunk.subtrees(lambda t: t.label() == "N"):
+                n_nouns += 1
+
+        if n_nouns > 1:
+            append = False
+
+        if append:
+            np_chunks.append(chunk)
+    """
+    np_chunks = list(tree.subtrees(lambda t: t.label() == "NP"))
     
     return np_chunks
     """
