@@ -18,8 +18,8 @@ NONTERMINALS = """
 S -> S S | S Conj S | NP VP NP | NP VP | NP VP PP NP | VP NP PP NP | VP NP | NP VP PP | NP VP NP PP | PP PP
 
 AP -> Adj | Adj AP
-NP -> N | Det N | Det AP N | Det N Adv | Det N PP | PP Det AP N | PP N | Det AP N PP
-PP -> P NP | P 
+NP -> N | Det N | Det AP N | Det N Adv | Det N | Det AP N | Det AP N
+PP -> P NP | P
 VP -> V | Adv V | V Adv
 """
 
@@ -69,11 +69,11 @@ def preprocess(sentence):
     """
     lower_case_sentence = sentence.lower()
     processsed_sentence = nltk.word_tokenize(lower_case_sentence)
+
+    # creating a list with words that contain at least one alphabetic character
     cleaned_sentence = [word for word in processsed_sentence if any(letter.isalpha() for letter in word)]
 
-    print(f"Cleaned_sentence = {cleaned_sentence}")
     return cleaned_sentence
-
 
     raise NotImplementedError
 
@@ -86,42 +86,24 @@ def np_chunk(tree):
     noun phrases as subtrees.
     """
 
-    ##################
-    """
+    # Getting all subtrees with the label == 'NP'
     chunks = list(tree.subtrees(lambda t: t.label() == "NP"))
-    nouns = list(tree.subtrees(lambda t: t.label() == "N"))
-    
+
     np_chunks = []
-    for chunk in chunks:
+    for chunk1 in chunks:
         append = True
-        for chunk_in_list in np_chunks:
-            if chunk != chunk_in_list and chunk in chunk_in_list.subtrees():
+
+        # Not appending chunks that have other chunks in them.
+        for chunk2 in chunks:
+            if chunk1 != chunk2 and chunk2 in chunk1.subtrees():
                 append = False
                 break
 
-        n_nouns = 0
-        for noun in nouns:
-            if noun in chunk.subtrees(lambda t: t.label() == "N"):
-                n_nouns += 1
-
-        if n_nouns > 1:
-            append = False
-
         if append:
-            np_chunks.append(chunk)
-    """
-    np_chunks = list(tree.subtrees(lambda t: t.label() == "NP"))
-    
-    return np_chunks
-    """
-    print(f"np_chunks = {np_chunks}")
+            np_chunks.append(chunk1)
 
-    print(f"chunks = [ ", end =' ')
-    for element in chunks:
-        print(f"{element.flatten()}", end=', ')
-    print("]")
-    """
-    #if not any() :
+    return np_chunks
+
     raise NotImplementedError
 
 
