@@ -9,7 +9,7 @@ For this project, Tensorflow's Keras (a high-level neural networks API) was util
 
 The neural network was created through multiple tests and experimentation, which were recorded on the file experimentation_process.md, and was focused on achieving for the highest accuracy possible while still making quick predictions.
 
-As a step beyond what I should do, and for the sake of practice and curiosity, I also created an automated version meant to train an Ai over and over till it achieves a certain accuracy on both training and testing.
+As a step beyond what I should do, and for the sake of practice and curiosity, I also created an automated version meant to train an Ai until it achieves a certain accuracy on both training and testing.
 
 The Files Traffic_ai.h5 and Traffic_ai.keras are two Ai created through that automation, both achieved an accuracy of 0.995 (or slightly higher) on both its last epoch and test while needing 50-60ms to predict a single image.
 
