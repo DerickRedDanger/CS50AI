@@ -1,5 +1,6 @@
 import sys
 import tensorflow as tf
+import math
 
 from PIL import Image, ImageDraw, ImageFont
 from transformers import AutoTokenizer, TFBertForMaskedLM
@@ -46,6 +47,26 @@ def get_mask_token_index(mask_token_id, inputs):
     `None` if not present in the `inputs`.
     """
     # TODO: Implement this function
+
+    if not mask_token_id:
+        return None
+
+    print(f"mask_token_id = {mask_token_id}")
+    print(f"input = {inputs}")
+    print(f"input[input_ids] = {inputs['input_ids']}")
+    print(f"input[input_ids].numpy() = {inputs['input_ids'].numpy()}")
+    input = inputs['input_ids'].numpy()
+    print (f"input = {input}")
+    list_input = input.tolist()
+    print(f"list_input = {list_input}")
+    try:
+        index = list_input[0].index(int(mask_token_id))
+    except:
+        return None
+
+    return index
+
+    
     raise NotImplementedError
 
 
@@ -55,7 +76,24 @@ def get_color_for_attention_score(attention_score):
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
     """
+    
     # TODO: Implement this function
+
+    #print(f"attention_score = {attention_score}")
+
+    colour = attention_score * 255
+    decimal = colour - int(colour)
+
+    if decimal < 0.5:
+        colour = math.floor(colour)
+
+    else:
+        colour = math.ceil(colour)
+
+    RGB = (colour,colour,colour)
+
+    return RGB
+    
     raise NotImplementedError
 
 
@@ -71,12 +109,34 @@ def visualize_attentions(tokens, attentions):
     (starting count from 1).
     """
     # TODO: Update this function to produce diagrams for all layers and heads.
+    print(f"tokens = {tokens}")
+    print(f"attentions = {attentions}")
+    layer = 0
+    index_layer = -1
+    for _ in tokens:
+        layer += 1
+        index_layer += 1
+
+        head = 0
+        index_head = -1
+        for _ in tokens:
+            head += 1
+            index_head += 1
+
+            generate_diagram(
+                layer,
+                head,
+                tokens,
+                attentions[index_layer][0][index_head]
+            )
+    """
     generate_diagram(
         1,
         1,
         tokens,
         attentions[0][0][0]
     )
+    """
 
 
 def generate_diagram(layer_number, head_number, tokens, attention_weights):
