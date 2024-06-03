@@ -48,27 +48,23 @@ def get_mask_token_index(mask_token_id, inputs):
     """
     # TODO: Implement this function
 
-    if not mask_token_id:
-        return None
-
-    print(f"mask_token_id = {mask_token_id}")
-    print(f"input = {inputs}")
-    print(f"input[input_ids] = {inputs['input_ids']}")
-    print(f"input[input_ids].numpy() = {inputs['input_ids'].numpy()}")
+    # Getting the  input_ids from the input and turning it into a Numpy array
     input = inputs['input_ids'].numpy()
-    print (f"input = {input}")
+    # Turning that array into a list
     list_input = input.tolist()
-    print(f"list_input = {list_input}")
+
+    # Checking if there is a Mask in that input
     try:
         index = list_input[0].index(int(mask_token_id))
+
+    # If there isn't return None
     except:
         return None
 
+    # If there is, return this Mask's index
     return index
 
-    
     raise NotImplementedError
-
 
 
 def get_color_for_attention_score(attention_score):
@@ -76,10 +72,8 @@ def get_color_for_attention_score(attention_score):
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
     """
-    
-    # TODO: Implement this function
 
-    #print(f"attention_score = {attention_score}")
+    # TODO: Implement this function
 
     colour = attention_score * 255
     decimal = colour - int(colour)
@@ -90,12 +84,11 @@ def get_color_for_attention_score(attention_score):
     else:
         colour = math.ceil(colour)
 
-    RGB = (colour,colour,colour)
+    RGB = (colour, colour, colour)
 
     return RGB
-    
-    raise NotImplementedError
 
+    raise NotImplementedError
 
 
 def visualize_attentions(tokens, attentions):
@@ -109,19 +102,24 @@ def visualize_attentions(tokens, attentions):
     (starting count from 1).
     """
     # TODO: Update this function to produce diagrams for all layers and heads.
-    print(f"tokens = {tokens}")
-    print(f"attentions = {attentions}")
-    layer = 0
-    index_layer = -1
-    for _ in tokens:
-        layer += 1
-        index_layer += 1
 
-        head = 0
-        index_head = -1
-        for _ in tokens:
-            head += 1
-            index_head += 1
+    print(f"tokens = {tokens}")
+
+    # Finding how many layers and heads are there in my attention.
+    # Assuming that beam number is always 0
+    n_layers = len(attentions)
+
+    # Since all layers have the same amount of heads (tested), I just picked a random one (1 in this case)
+    # the 0 is for the beam number, which is always 0 in this case
+    n_heads = len(attentions[1][0])
+
+    # It was requested that the number of head/layer in the graphics to be 1 indexed
+    # that's why they are 1 value higher then the index used in attention
+    for index_layer in range(n_layers):
+        layer = index_layer + 1
+
+        for index_head in range(n_heads):
+            head = index_head + 1
 
             generate_diagram(
                 layer,
