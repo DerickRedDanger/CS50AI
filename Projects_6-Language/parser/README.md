@@ -1,3 +1,5 @@
+# Read me
+
 The problem and it's full description is avaliable in the link: 
 https://cs50.harvard.edu/ai/2024/projects/6/parser/
 
@@ -32,7 +34,7 @@ In this problem, we’ll use the context-free grammar formalism to parse English
 
 ## understanding:
 
-There are a number of text files in the sentence directory, each containing an English sentence. This project goal was to write a parser that is able to parse all of these sentences.
+The sentence directory contains a number of text files, each containing an English sentence. This project goal was to write a parser that is able to parse all of these sentences.
 
 At parse.py, we defined the context free grammar rules at the top of the file. There are the rules used to generate terminal symbols and non-terminal symbol.
 
