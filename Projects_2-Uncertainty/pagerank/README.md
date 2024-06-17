@@ -5,7 +5,7 @@ https://cs50.harvard.edu/ai/2024/projects/2/pagerank/
 
 ## Introduction:
 
-This project aims at creating a algorithm similar to Google's pagerank. An algorithm meant to identify the more important or higher quality pages and prioritise them when showing a search result.
+This project aims at creating a algorithm similar to Google's pagerank. An algorithm meant to identify the more important or higher quality pages and prioritize them when showing a search result.
 
 Meanwhile the method and formula for this is already know, my task was to utilize those to create a program that would ranks all pages in a corpus by implementing two approaches. By utilizing the random surfer model and the iterative algorithm. Both are explained in understanding.
 
