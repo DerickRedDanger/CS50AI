@@ -144,7 +144,7 @@ Logic System: Propositional Logic
 
 Description: This project involves analyzing statements made by individuals to identify knights and knaves. Knights always tell the truth, while knaves always lie. The AI uses propositional logic to evaluate each statement and deduce the identity of each individual.
 
-2. Project B -Minesweeper:
+2. Project B - Minesweeper:
 
 Objective: Develop an AI to play Minesweeper proficiently, using logic to identify safe spots and mines.
 
@@ -235,8 +235,8 @@ Lecture 3 of the CS50 Introduction to AI with Python course focused on optimizat
             * Stochastic Hill Climbing: Randomly selects among uphill moves.
             * First-choice Hill Climbing: Randomly generates neighbors until one is better than the current.
             * Random-Restart Hill Climbing: Repeatedly runs hill climbing from random starting points.
-    * Local Beam Search: Starts with multiple random solutions and explores their neighbors, keeping the best ones.
-    * Simulated Annealing: Mimics the process of heating and slowly cooling to reach a minimum energy state, allowing occasional downhill moves to escape local maxima.
+            * Local Beam Search: Starts with multiple random solutions and explores their neighbors, keeping the best ones.
+            * Simulated Annealing: Mimics the process of heating and slowly cooling to reach a minimum energy state, allowing occasional downhill moves to escape local maxima.
 * Linear Programming: An optimization technique for a problem in which the objective function and constraints are linear.
 
 * Constraint Satisfaction Problems (CSP): Problems where the solution must satisfy a number of constraints.
@@ -261,20 +261,187 @@ Description: This project involved creating an AI that generates a valid crosswo
 * Developed skills in solving constraint satisfaction problems using techniques like node and arc consistency.
 * Implemented an AI for generating crosswords, enhancing problem-solving and analytical skills in optimization.
 
+### **Machine Learning**
 
+#### Lecture 4 Overview:
+Lecture 4 of the CS50 Introduction to AI with Python course focused on machine learning, a field of AI where computers learn from data to recognize patterns and execute tasks without explicit instructions. The lecture covered various machine learning techniques and their applications.
 
-2. 
-    - A project on logic-based AI and knowledge representation.
-3. **Uncertainty**
-    - Projects on probabilistic models and inference.
-3. **Optimization**
-    - Projects on probabilistic models and inference.
-4. **Learning**
-    - Machine learning projects, including classifiers and neural networks.
-5. **Neural Networks**
-    - Machine learning projects, including classifiers and neural networks.
-6. **Language**
-    - 
+#### Key Concepts
+
+* Supervised Learning: A type of machine learning where the model is trained on labeled data.
+
+    * Nearest-Neighbor Classification: Classifies data points based on the closest training examples in the feature space.
+    * Perceptron Learning: An algorithm for binary classifiers, updating weights based on the error of predictions.
+    * Support Vector Machines (SVM): Finds the hyperplane that best separates classes in the feature space.
+    * Regression: Predicts continuous values based on input features.
+    * Loss Functions: Measure the error of predictions, guiding the training process.
+    * Overfitting: When a model learns the training data too well, including noise, leading to poor performance on new data.
+    * Regularization: Techniques to prevent overfitting by penalizing complex models.
+* Scikit-learn: A Python library for machine learning, providing tools for data mining and data analysis.
+
+* Reinforcement Learning: A type of machine learning where an agent learns by interacting with the environment and receiving rewards.
+
+    * Markov Decision Processes (MDP): Mathematical frameworks for modeling decision-making in environments with randomness.
+    * Q-Learning: A reinforcement learning algorithm that learns the value of actions in states.
+* Unsupervised Learning: A type of machine learning where the model finds patterns in unlabeled data.
+
+    * Clustering: Grouping data points based on their similarities.
+    * K-means Clustering: An algorithm that partitions data into k clusters, assigning each data point to the nearest cluster center.
+
+#### Projects Overview:
+
+1. Project - Shopping:
+Objective: Create a classifier AI that can predict whether a user on a shopping website will purchase something or not.
+
+Concepts Used: Supervised Learning, Nearest-Neighbor Classification, Support Vector Machines, Scikit-learn.
+
+Description: This project involved using historical data of users' interactions on a shopping website to train a classifier. The AI uses features such as browsing history, time spent on site, and demographics to predict the likelihood of a purchase.
+
+2. Project - Nim:
+
+Objective: Develop an AI capable of teaching itself to play Nim through reinforcement learning and of playing Nim against a human player.
+
+Concepts Used: Reinforcement Learning, Markov Decision Processes, Q-Learning.
+
+Description: This project focused on creating an AI that learns to play the game of Nim. The AI uses reinforcement learning to learn optimal strategies by playing against itself and adjusting its moves based on the rewards received for winning or losing.
+
+#### What I Learned:
+* Gained knowledge of various machine learning methods and their applications in AI.
+* Learned different approaches to training models with labeled and unlabeled data.
+* Developed skills in creating AI agents that learn through interaction and rewards.
+* Implemented AIs for predicting user behavior on shopping websites and for playing the game of Nim, enhancing problem-solving and analytical skills in machine learning.
+
+### **Neural Networks**
+
+#### Lecture 5 Overview:
+Lecture 5 of the CS50 Introduction to AI with Python course focused on neural networks, a key technology in artificial intelligence that mimics the human brain's structure and function. The lecture covered various aspects of neural networks and their applications.
+
+#### Key Concepts
+* Neural Networks: Artificial systems inspired by the human brain, composed of interconnected nodes (neurons).
+
+* Activation Functions: Functions that determine the output of a neural network node.
+
+    * Step Function: Produces binary output.
+    * Logistic Sigmoid: Produces output between 0 and 1.
+    * ReLU (Rectified Linear Unit): Outputs the input directly if positive, otherwise zero.
+* Neural Network Structure: The arrangement of neurons in layers.
+
+* Gradient Descent: An optimization algorithm used to minimize the loss function.
+
+* Multilayer Neural Network: Networks with multiple layers of neurons (input, hidden, output).
+
+* Backpropagation: A method for training neural networks by adjusting weights based on the error rate.
+
+* Dropout: A technique to prevent overfitting by randomly ignoring neurons during training.
+
+* TensorFlow: A Python library for machine learning and neural networks.
+
+* Computer Vision: A field of AI that enables computers to interpret and make decisions based on visual data.
+
+* Image Convolution: A process to filter images for feature extraction.
+
+* Convolutional Neural Networks (CNN): Specialized neural networks for processing structured grid data like images.
+
+* Recurrent Neural Networks (RNN): Networks with loops, allowing information to persist.
+
+#### Project Overview:
+1. Project - Traffic:
+Objective: Create a neural network capable of classifying road signs based on images using TensorFlow's Keras and the German Traffic Sign Recognition Benchmark (GTSRB) dataset.
+
+Concepts Used: Convolutional Neural Networks, TensorFlow, Keras, Image Convolution, Gradient Descent, Backpropagation, Dropout.
+
+##### Description:
+* The project involved building and training a convolutional neural network to classify road signs accurately.
+
+* The neural network was designed through extensive testing and experimentation, documented in experimentation_process.md.
+* The goal was to achieve high accuracy while maintaining quick prediction times.
+* Additionally, an automated version of the training process was created to achieve a specific accuracy threshold.
+* The models Traffic_ai.h5 and Traffic_ai.keras achieved an accuracy of 0.995 (or higher) on both the last epoch and test set, with prediction times around 50-60ms per image.
+
+#### What I Learned:
+
+* Gained in-depth knowledge of designing and training neural networks.
+* Learned advanced techniques like dropout to prevent overfitting and backpropagation for efficient training.
+* Applied theoretical knowledge in a practical project, creating a high-accuracy model for road sign classification.
+* Developed skills in experimentation and optimization to improve model performance.
+* Explored automation in training neural networks, enhancing efficiency and consistency.
+
+### **Language**
+
+#### Lecture 6 Overview:
+Lecture 6 of the CS50 Introduction to AI with Python course delved into how AI can process human language. The lecture covered natural language processing (NLP) and various applications, such as automatic summarization, information extraction, language identification, machine translation, named entity recognition, speech recognition, text classification, and word sense disambiguation. It also discussed syntax and semantics.
+
+#### Key Concepts:
+* Natural Language Processing (NLP): The field of AI focused on the interaction between computers and humans using natural language.
+
+* Applications of NLP:
+
+    * Automatic Summarization: Creating a concise and coherent summary of a longer text.
+    * Information Extraction: Automatically extracting structured information from unstructured text.
+    * Language Identification: Determining the language of a given text.
+    * Machine Translation: Translating text from one language to another.
+    * Named Entity Recognition: Identifying and classifying named entities in text.
+    * Speech Recognition: Converting spoken language into text.
+    * Text Classification: Assigning predefined categories to text.
+    * Word Sense Disambiguation: Determining which meaning of a word is used in a context.
+
+* Syntax and Semantics: The structure of sentences and the meaning of words and sentences, respectively.
+
+* Context-free Grammar (CFG): A formal grammar that defines the syntactic structure of a language.
+
+* NLTK (Natural Language Toolkit): A Python library for working with human language data.
+
+* N-grams: Contiguous sequences of n items from a given sample of text or speech.
+
+* Tokenization: The process of splitting text into individual words or phrases.
+
+* Markov Models: Models that use probability to predict the next item in a sequence based on the current state.
+
+* Bag-of-Words Model: A model that represents text as an unordered collection of words, disregarding grammar and word order.
+
+* Naive Bayes: A probabilistic classifier based on Bayes' theorem.
+
+* Word Representation:
+
+    * word2vec: A technique to represent words in vector space.
+* Neural Networks: AI systems that mimic the human brain's interconnected neuron structure.
+
+* Attention Mechanisms: Techniques in neural networks that allow the model to focus on specific parts of the input.
+
+* Transformers: A type of neural network architecture that uses self-attention mechanisms to process input data.
+
+#### Projects:
+
+1. Project A - Parse:
+
+Objective: Create a parsing program capable of extracting noun phrases.
+
+* Description:
+
+    * Utilized the Natural Language Toolkit's (NLTK) context-free grammar.
+    * Manually wrote rules for the non-terminals.
+    * The program parses sentences and identifies noun phrases using these rules.
+
+2. Project B - Attention:
+Objective: Develop a language model using the Masked Language Model BERT and generate attention diagrams.
+
+* Description:
+
+    *  Step 1: Create a language model using BERT.
+        * The model allows users to input a phrase with a [MASK] token.
+        * The model predicts three possible tokens that best fit the [MASK] based on context.
+
+    * Step 2: Generate attention diagrams.
+        * Visualize what each head from each layer of the BERT model focuses on.
+        * Analyze these diagrams to understand how attention heads interpret natural language.
+
+* Example Analysis: Three attention heads were described through examples, but their graphics were not saved as they can be easily reproduced by running the program with the provided phrases.
+
+#### What I Learned:
+* NLP Techniques: Gained a solid understanding of various NLP techniques and their applications.
+* Context-free Grammar: Learned to implement CFG in NLP tasks using NLTK.
+* BERT and Attention: Developed practical skills in using BERT for masked language modeling and analyzing attention mechanisms in transformers.
+* Practical Implementation: Applied theoretical concepts to create programs for parsing sentences and understanding language model attention.
 
 ## Contributing
 
