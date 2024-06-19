@@ -5,17 +5,31 @@ This repository contains my projects and assignments for the CS50: Introduction 
 ## Table of Contents
 - [Description](#description)
 - [Installation and Usage](#installation-and-usage)
-- [Projects](#projects)
+- [Search Algorithms](#search-algorithms)
+    - [Project 0](#project-0)
+- [Knowledge](#knowledge)
+    - [Project 1](#project-1)
+- [Uncertainty](#Uncertainty)
+    - [Project 2](#project-2)
+- [Optimization](#Optimization)
+    - [Project 3](#project-3)
+- [Machine Learning](#Machine-Learning)
+    - [Project 4](#project-4)
+- [Neural Networks](#Neural-Networks)
+    - [Project 5](#project-5)
+- [Language](#Language)
+    - [Project 6](#project-6)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
 ## Description
 
-This repository includes all the code and projects I completed as part of the CS50: Introduction to AI with Python course.
+This repository includes all the code and projects I completed as part of the CS50: Introduction to AI with Python course, Including a summary of everything I learned during in.
+
 The course covered various AI concepts, including search algorithms, logic, machine learning, and more.
 
-## Installation and Usage - wip
+## Installation and Usage
 
 To run the projects locally, follow these steps:
 
@@ -25,21 +39,17 @@ To run the projects locally, follow these steps:
     cd CS50AI
     ```
 
-2. Install the required packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
+2. Cd inside the project you'd like to run, below is an example. Each of them have their own read me explaining how to run them.
 
-3. Run the projects:
     ```bash
-    python project_name.py
+    cd Projects_5-Neural_Networks
     ```
 
 ## Lectures and Projects
 
 ### **Search Algorithms** 
 
-#### Lecture 0 Overview:
+#### Lecture 0
 Lecture 0 focused on various search algorithms used in AI for solving problems such as pathfinding and game playing. The lecture covered both uninformed and informed search techniques, providing a solid foundation for understanding how AI can efficiently search for solutions.
 
 #### Search Algorithms Covered
@@ -79,7 +89,7 @@ Optimizes Minimax by ignoring branches that won’t affect the final decision, r
 
 Limits the depth of the search to a predefined level, using an evaluation function. Is more manageable computational requirements but Relies on the accuracy of the evaluation function.
 
-#### Project 0 Overview
+#### Project 0
 
 1. Project A - Degrees of Separation:
 
@@ -106,7 +116,7 @@ Description: The AI uses Minimax with Alpha-Beta Pruning to simulate all possibl
 
 ### **Knowledge**
 
-#### Lecture 1 Overview:
+#### Lecture 1
 
 Lecture 1 of the CS50 Introduction to AI with Python course focused on how AI can represent and reason about knowledge. The lecture covered propositional logic and first-order logic, demonstrating how these systems can model real-world scenarios and draw conclusions.
 
@@ -134,7 +144,7 @@ Extends propositional logic to include quantifiers and predicates.
 * Existential Quantification (∃): Statements that apply to at least one member of a domain.
 * Allows for more expressive representations of knowledge.
 
-#### Projects Overview:
+#### Project 1
 
 1. Project A - Knights:
 
@@ -161,7 +171,7 @@ Description: The AI gathers information from its moves and uses logical reasonin
 
 ### **Uncertainty**
 
-#### Lecture 2 Overview:
+#### Lecture 2
 
 Lecture 2 of the CS50 Introduction to AI with Python course focused on how to create AI that makes optimal decisions under conditions of uncertainty. The lecture covered key concepts in probability and statistical reasoning, providing a foundation for handling uncertain information.
 
@@ -195,7 +205,7 @@ Lecture 2 of the CS50 Introduction to AI with Python course focused on how to cr
     * Hidden Markov Models (HMMs): Models where the system being modeled is assumed to follow a Markov process with hidden states.
     * Sensor Markov Assumption: Observations depend only on the current state.
 
-#### Projects Overview:
+#### Project 2
 
 1. Project A - PageRank:
 
@@ -222,7 +232,7 @@ Description: This project involved calculating the probability of a person havin
 
 ### **Optimization**
 
-#### Lecture 3 Overview:
+#### Lecture 3
 Lecture 3 of the CS50 Introduction to AI with Python course focused on optimization, which involves choosing the best option among a set of possible solutions to a problem. The lecture covered various optimization techniques and their applications in AI.
 
 #### Key Concepts:
@@ -244,7 +254,8 @@ Lecture 3 of the CS50 Introduction to AI with Python course focused on optimizat
     * Node Consistency: Ensuring that all values in the variable’s domain satisfy the variable's unary constraints.
     * Arc Consistency: Ensuring that for every value of one variable, there is a consistent value in another variable.
     * Backtracking Search: A depth-first search algorithm for CSPs that incrementally builds candidates to the solutions and abandons a candidate as soon as it determines that the candidate cannot lead to a valid solution.
-#### Project Overview:
+
+#### Project 3
 
 1. Project - Crossword:
 
@@ -263,7 +274,7 @@ Description: This project involved creating an AI that generates a valid crosswo
 
 ### **Machine Learning**
 
-#### Lecture 4 Overview:
+#### Lecture 4
 Lecture 4 of the CS50 Introduction to AI with Python course focused on machine learning, a field of AI where computers learn from data to recognize patterns and execute tasks without explicit instructions. The lecture covered various machine learning techniques and their applications.
 
 #### Key Concepts
@@ -313,7 +324,7 @@ Description: This project focused on creating an AI that learns to play the game
 
 ### **Neural Networks**
 
-#### Lecture 5 Overview:
+#### Lecture 5
 Lecture 5 of the CS50 Introduction to AI with Python course focused on neural networks, a key technology in artificial intelligence that mimics the human brain's structure and function. The lecture covered various aspects of neural networks and their applications.
 
 #### Key Concepts
@@ -344,7 +355,8 @@ Lecture 5 of the CS50 Introduction to AI with Python course focused on neural ne
 
 * Recurrent Neural Networks (RNN): Networks with loops, allowing information to persist.
 
-#### Project Overview:
+#### Project 5
+
 1. Project - Traffic:
 Objective: Create a neural network capable of classifying road signs based on images using TensorFlow's Keras and the German Traffic Sign Recognition Benchmark (GTSRB) dataset.
 
@@ -368,7 +380,7 @@ Concepts Used: Convolutional Neural Networks, TensorFlow, Keras, Image Convoluti
 
 ### **Language**
 
-#### Lecture 6 Overview:
+#### Lecture 6
 Lecture 6 of the CS50 Introduction to AI with Python course delved into how AI can process human language. The lecture covered natural language processing (NLP) and various applications, such as automatic summarization, information extraction, language identification, machine translation, named entity recognition, speech recognition, text classification, and word sense disambiguation. It also discussed syntax and semantics.
 
 #### Key Concepts:
@@ -410,7 +422,7 @@ Lecture 6 of the CS50 Introduction to AI with Python course delved into how AI c
 
 * Transformers: A type of neural network architecture that uses self-attention mechanisms to process input data.
 
-#### Projects:
+#### Project 6
 
 1. Project A - Parse:
 
