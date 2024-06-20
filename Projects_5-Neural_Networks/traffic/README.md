@@ -1,111 +1,88 @@
-# Read me
+# Neural Network for Road Sign Classification
 
-The problem and it's full description is avaliable in the link: 
-https://cs50.harvard.edu/ai/2024/projects/5/traffic/
+## Problem Description
+The full problem description is available at the following link: [CS50 AI Project 5: Traffic](https://cs50.harvard.edu/ai/2024/projects/5/traffic/).
 
-## Introduction:
+## Introduction
 
-This project aims at creating a neural network capable of classifying road signs based on an image of those signs.
+This project aims to create a neural network capable of classifying road signs based on images. Using TensorFlow's Keras API, a high-level neural networks API, I created a convolutional neural network trained and tested on the German Traffic Sign Recognition Benchmark (GTSRB) dataset.
 
-For this project, Tensorflow's Keras (a high-level neural networks API) was utilized to create a convolutional network, while using the German Traffic Sign Recognition Benchmark (GTSRB) dataset for training and testing. 
+The neural network was developed through multiple tests and experiments, which are recorded in the `experimentation_process.md` file. The focus was on achieving the highest possible accuracy while maintaining quick prediction times.
 
-The neural network was created through multiple tests and experimentation, which were recorded on the file experimentation_process.md, and was focused on achieving for the highest accuracy possible while still making quick predictions.
+As an additional step, I created an automated version that trains the AI until it reaches a specified accuracy on both training and testing datasets. The resulting models, `Traffic_ai.h5` and `Traffic_ai.keras`, achieved an accuracy of 0.995 on both the final epoch and test, with a prediction time of 50-60ms per image.
 
-As a step beyond what I should do, and for the sake of practice and curiosity, I also created an automated version meant to train an Ai until it achieves a certain accuracy on both training and testing.
+## Utilization
 
-The Files Traffic_ai.h5 and Traffic_ai.keras are two Ai created through that automation, both achieved an accuracy of 0.995 (or slightly higher) on both its last epoch and test while needing 50-60ms to predict a single image.
+### Prerequisites
 
-## Utilization:
+- Navigate to the project directory: `cd traffic`
+- Install the required dependencies: `pip3 install -r requirements.txt` (only needs to be done once).
 
-* cd inside traffic
+### Running `traffic.py`
 
-* pip3 install -r requirements.txt (only need to be done once)
+1. Run in the terminal: `python traffic.py gtsrb`.
+2. The terminal will display the AI's training progress, including the current epoch, time taken for each epoch, time per batch in milliseconds, accuracy, loss, precision, and recall.
+3. After the final epoch, the evaluation (test) progress will be displayed, showing the same metrics as during training. This tests how well the model handles unseen data.
+4. Finally, the terminal will display the progress of predicting a single image and the time taken for the prediction.
+5. To train and save an AI model, run: `python traffic.py gtsrb [model_name.h5 or model_name.keras]`.
 
-### Traffic.py:
+**Note:** The training process includes a callback function that will stop training once the model reaches an accuracy of 0.995. This is to quickly save a highly accurate AI model.
 
-* Run in the terminal: python traffic.py gtsrb 
+**Metrics Explanation:**
+- **Loss:** Indicates how well the model's predictions match the true values. Lower is better.
+- **Precision:** Ratio of correctly predicted positive observations to total predicted positives.
+- **Recall (Sensitivity):** Ratio of correctly predicted positive observations to all actual positives.
 
-* The terminal will show the progress of the Ai's training. On which epoch it's, it's progress on that epoch, how log it took to train in that epoch, the time in milliseconds per batch on that epoch, it's accuracy, loss, precision and recall (Will be explained in obs2.)
+### Running `traffic_automated_version.py`
 
-* After the last epoch, it will show the progress on the evaluation (test), showing the same metrics as in the training. This test show how well the model deals with unseen data.
+1. This script works similarly to `traffic.py` and uses the same commands.
+2. The main difference is that it continues training the same AI model until it reaches a set accuracy on both training and testing datasets.
+3. The accuracy and most constants used in the training are defined and explained at the start of the file for easier control over the training process.
 
-* Lastly, it will show the progress of predicting a single image and the time it took to do so.
+**Default Values:**
+- `EPOCHS = 100`
+- `MAX_EPOCHS = 500`
+- `MAX_TRAINING_ROW = 100`
+- `MAX_RESETS = 50`
+- `TRAINING_ACCURACY = 0.995`
+- `TEST_ACCURACY = 0.995`
 
-* if you'd like both to train and save an Ai, run in the terminal : python traffic.py gtsrb [model_name.h5 or model_name.keras]
+**Note:** Achieving an accuracy of 0.995 on both training and test is rare, so expect the program to run for extended periods, and it may sometimes fail to create such a model.
 
-* Obs: The training has a Callback function that will exit the training should the model reach an accuracy of 0.995. This is done to quickly save an Ai that reached a high accuracy. 
+**Accuracy Note:** The accuracy reported during training is a running average at the current point in the epoch, meaning early batches influence it more. The program might keep training even if Keras reports an accuracy of 0.995, and the printed accuracy might differ from Keras's reported value.
 
-* Obs2: the Metric Loss symbolizes how well the model's prediction matches the true value, the lower, the better. Precision is the ratio of correctly predicted positive observations to the total predicted positives. Recall (Sensitivity) is the ratio of correctly predicted positive observations to all observations in actual class.
+## Background
 
-### Traffic_automated_version.py:
+As research in self-driving cars progresses, one key challenge is computer vision, enabling cars to understand their environment from digital images. This involves recognizing and distinguishing road signs such as stop signs, speed limit signs, yield signs, and more.
 
-* works in the exact same manner as traffic.py and uses the same commands.
+In this project, TensorFlow is used to build a neural network to classify road signs based on images. The GTSRB dataset, containing thousands of images of 43 different road sign types, is used for training and testing.
 
-* Main difference being that it will continue training the same Ai till it reaches a set accuracy on both training and testing.
+## Understanding the Data
 
-* That accuracy and most constants utilized in the training are present and explained at the start of the file, allowing for an easier control over the training.
+The `gtsrb` directory contains 43 subdirectories, each representing a different type of road sign (numbered 0 through 42). Within each subdirectory are images of that traffic sign type.
 
-* the default values are EPOCHS = 100, MAX_EPOCHES = 500, MAX_TRAINING_ROW = 100, MAX_RESETS = 50, TRAINING_ACCURACY = 0.995, TEST_ACCURACY = 0.995
+## Code Overview
 
-* Obs: be warned that reaching an accuracy of 0.995 on both training and test is rare, so if using default values, expect this program to run for long periods of times, and it may yet fail to create such model at times.
+### `traffic.py`
 
-* Obs2: The accuracy showed at the last epoch is not the final accuracy of a epoch. When Keras reports the accuracy during training, it's giving this running average at the current point in the epoch. This means that early batches have a larger influence on this reported accuracy than later batches. So don't be surprised if the program keeps training even if keras returned an accuracy of 0.995, nor if the print showing the accuracy is different from Keras.
+- **Main Function:** Accepts a data directory and optionally a filename to save the trained model. Loads data and labels from the data directory, splits it into training and testing sets, compiles a neural network, trains it, evaluates it, and saves the model if a filename is provided.
 
-## Background:
+- **Functions:**
+  - `load_data(data_dir)`: Returns image arrays and labels for the dataset. Returns a tuple `(images, labels)`, where `images` is a list of `numpy.ndarray` representing images, and `labels` is a list of integers representing the category numbers.
+  - `get_model()`: Returns a compiled neural network model.
+  - `MyCallback`: Stops training when the model's accuracy reaches 0.995 or higher.
 
-As research continues in the development of self-driving cars, one of the key challenges is computer vision, allowing these cars to develop an understanding of their environment from digital images. In particular, this involves the ability to recognize and distinguish road signs – stop signs, speed limit signs, yield signs, and more.
+### `traffic_automated_version.py`
 
-In this project, I’ll use TensorFlow to build a neural network to classify road signs based on an image of those signs. To do so, I’ll need a labeled dataset: a collection of images that have already been categorized by the road sign represented in them.
+- **Main Function:** Similar to the original, but includes nested loops and additional constants for training until a set accuracy is reached or maximum resets are achieved. Saves the model if it passes accuracy tests and a filename is given.
 
-Several such data sets exist, but for this project, we’ll use the German Traffic Sign Recognition Benchmark (GTSRB) dataset, which contains thousands of images of 43 different kinds of road signs.
+- **Functions:**
+  - `load_data(data_dir)`: Same as the original.
+  - `get_model()`: Same as the original.
+  - `MyCallback`: Tracks training iterations and resets. Stops training if the model reaches the set accuracy or a specified number of resets.
 
-## Understanding:
+## Experimentation Process
 
-First, take a look at the data set by opening the gtsrb directory. You’ll notice 43 subdirectories in this dataset, numbered 0 through 42. Each numbered subdirectory represents a different category (a different type of road sign). Within each traffic sign’s directory is a collection of images of that type of traffic sign.
+The `Experimentation_Summary.md` file documents the experimentation process, detailing what was tried, what worked well, what didn’t, and observations made during the process.
 
-Next, take a look at traffic.py. In the main function, we accept as command-line arguments a directory containing the data and (optionally) a filename to which to save the trained model. The data and corresponding labels are then loaded from the data directory (via the load_data function) and split into training and testing sets. After that, the get_model function is called to obtain a compiled neural network that is then fitted on the training data. The model is then evaluated on the testing data. Finally, if a model filename was provided, the trained model is saved to disk.
-
-The load_data and get_model functions were left to me to implement.
-
-## Specification:
-
-### traffic.py:
-
-#### load_data:
-
-* Accept as an argument data_dir, representing the path to a directory where the data is stored, and return image arrays and labels for each image in the data set.
-
-* Returns a tuple (images, labels). Images is a list of all images in the data set, where each image is represented as a numpy.ndarray of the appropriate size. Labels is a list of integers, representing the category number for each of the corresponding images in the images list.
-* This function is platform-independent: that is to say, it works regardless of operating system.
-
-#### get_model:
-
-* Return a compiled neural network model.
-
-#### MyCallback:
-
-* when the model's accuracy reaches 0.995 or higher, it will stop training
-
-### experimentation_process.md:
-
-* documents my experimentation process. What I tried, what worked well, what didn’t work well, What I noticed.
-
-### traffic_automated_version.py:
-
-#### Main():
-
-* Works akin to the original, but has nested loops and more constants, allowing it to train a Model util it reaches a certain accuracy or reaches the maximum set amount of reset. If the model passes both accuracy test and a filename was given, that model will saved.
-
-#### Load_data and Get_model:
-
-* Same as the original. 
-
-#### MyCallback:
-
-* Saves the amount of times this model was trained in a roll (without reset) and the number of times this model reached low accuracy during a same training.
-
-* If this model achieves an accuracy equal or higher than a given TRAINING_ACCURACY, stop training and checks its test's accuracy.
-
-* If this model reaches low accuracy 6 times during the same training, it stops training and is reset. (This means this model was stuck at low accuracy)
-
-* If this model trained the set MAX_EPOCHES amount of epoches, stop training and is evaluated. (Meaning, this model will be reset if it didn't reach the set accuracy.)
+The `Experimentation_Process.md` file documented the experimentation process in more details

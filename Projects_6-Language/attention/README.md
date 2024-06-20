@@ -1,94 +1,62 @@
-# Read me
+# README
 
-The problem and it's full description is avaliable in the link: 
-https://cs50.harvard.edu/ai/2024/projects/6/attention/
+## Problem Description
+The full problem description is available at the following link: [CS50 AI Project 6: Attention](https://cs50.harvard.edu/ai/2024/projects/6/attention/)
 
-## Introduction:
+## Introduction
+This project consists of two main components:
 
-This project is composed of two steps.
+1. **Masked Language Model (BERT)**: 
+   - We use the Masked Language Model BERT to predict a masked token within a given sentence. The model will provide three possible predictions for the masked token.
+   
+2. **Attention Diagrams**: 
+   - We generate and analyze attention diagrams to understand what each attention head in each layer focuses on while interpreting the input text.
 
-The first aims at creating a language model using the Masked Language Model BERT. This will allow the user to give a phrase with a [MASK] token, which the language model will try to figure out what token would better suite that [MASK] given the context. For this project, we are only utilizing 1 [MASK] at a time and the program returns 3 possible predictions.
+## Utilization
+1. **Setup**:
+   - Navigate to the project directory: `cd attention`
+   - Install the required dependencies: `pip3 install -r requirements.txt` (only needs to be done once)
 
-The second Step is to generate attentions diagrams that will represent what each head from each layer paid attention to. Then to analyze these diagrams in an attempt to try to understand what some of the these attentions head might be paying attention to as it tries to understand our natural language.
+2. **Running the Program**:
+   - Execute the script: `python mask.py`
+   - Input a phrase with a single `[MASK]` token when prompted. For example: "We made a very long trip around the country [MASK]." 
+   - The program will output three possible predictions for the `[MASK]` token.
+   - Additionally, it will display the tokens identified from the input phrase (included for debugging and learning purposes).
 
-For this project, 3 attention heads were described, but their graphics were not saved, because they are easily reproduced. Simply run the program again using the phrases showed on each example.
+3. **Viewing Attention Diagrams**:
+   - The program generates 144 PNG files, each representing the attention values for one of the 12 heads from each of the 12 layers. These files are overwritten each time a phrase is processed.
 
-## Utilization:
+## Background
+Language models like BERT are trained to predict masked words within a sequence of text using the surrounding context. BERT employs a transformer architecture with an attention mechanism, consisting of 12 layers, each with 12 self-attention heads (144 heads in total).
 
-* cd inside attention
+In this project, we use the `transformers` Python library from Hugging Face to:
+1. Predict masked words using BERT.
+2. Generate diagrams visualizing attention scores for each of the 144 self-attention heads.
+3. Analyze these diagrams to infer what the attention heads are focusing on while processing the input text.
 
-* pip3 install -r requirements.txt (only need to be done once)
+## Detailed Steps
+### Masked Language Model
+1. **Tokenization**:
+   - The input text containing a `[MASK]` token is tokenized using `AutoTokenizer`.
+   
+2. **Prediction**:
+   - The masked token is predicted using an instance of `TFBertForMaskedLM`.
+   - The top K output tokens are identified and the original sequence is displayed with each predicted token replacing the `[MASK]`.
 
-* Run in the terminal: python mask.py
+3. **Attention Visualization**:
+   - The `visualize_attentions` function generates diagrams showing the attention values for each of BERT’s attention heads, providing insight into what the model focuses on during interpretation.
 
-* You will be prompted for a phrase. That phrase is expected to have a single [MASK] within it. One example for a phrase would be "We made a very long trip around the country [MASK]." It is recommended to use punctuation at the end of the sentence, since the program can also use punctuations for [MASK].
+### Custom Implementations
+- **get_mask_token_index**: Identifies the index of the `[MASK]` token within the input sequence.
+- **get_color_for_attention_score**: Converts attention scores to RGB color values for visualization.
+- **visualize_attentions**: Generates attention diagrams for each attention head.
 
-* The program will show three possible predictions (replacements for [MASK]) that should fit the phrase's context.
+## Analysis
+The second part of this project involves analyzing the generated attention diagrams. Details of the analysis are documented in `analysis.md`.
 
-* Below it will show the tokens it found from this phrase (Was not requested by Cs50, but left both for debugging and learning reason.)
+### Analysis Documentation (analysis.md)
+- **Attention Head Analysis**: Describes three attention heads, identifying relationships between words that the heads seem to focus on.
+- **Example Sentences**: Provides two to three example sentences for each identified relationship to illustrate the attention patterns.
 
-* In the Attention folder, you will find that the program created 144 PNGs, each of these contain the attention layer for each of the 12 head from each of the 12 layers. (they are created/overwritten every time a phrase is predicted.)
-
-* Feel free to use this to see the graphics used in the Analysis, in order to better understand each layer/head described there.
-
-## Background:
-
-One way to create language models is to build a Masked Language Model, where a language model is trained to predict a “masked” word that is missing from a sequence of text. BERT is a transformer-based language model developed by Google, and it was trained with this approach: the language model was trained to predict a masked word based on the surrounding context words.
-
-BERT uses a transformer architecture and therefore uses an attention mechanism for understanding language. In the base BERT model, the transformer uses 12 layers, where each layer has 12 self-attention heads, for a total of 144 self-attention heads.
-
-This project will involve two parts:
-
-First, we’ll use the transformers Python library, developed by AI software company Hugging Face, to write a program that uses BERT to predict masked words. The program will also generate diagrams visualizing attention scores, with one diagram generated for each of the 144 attention heads.
-
-Second, we’ll analyze the diagrams generated by our program to try to understand what BERT’s attention heads might be paying attention to as it attempts to understand our natural language.
-
-## Understanding:
-
-First, take a look at the mask.py program. In the main function, the user is first prompted for some text as input. The text input should contain a mask token [MASK] representing the word that our language model should try to predict. The function then uses an AutoTokenizer to take the input and split it into tokens.
-
-Next, we use an instance of [TFBertForMaskedLM]to predict a masked token using the BERT language model. The input tokens (inputs) are passed into the model, and then we look for the top K output tokens. The original sequence is printed with the mask token replaced by each of the predicted output tokens.
-
-Finally, the program calls the visualize_attentions function, which generates diagrams of the attention values for the input sequence for each of BERT’s attention heads. These diagrams can give us some insight into what BERT has learned to pay attention to when trying to make sense of language.
-
-Attention layers won’t always consistently align with our expectations for a particular relationship between words, and they won’t always correspond to a human-interpretable relationship at all, but we can make guesses based on what they appear to correspond to.
-
-Most of the code has been written By Cs50, but the implementations of get_mask_token_index, get_color_for_attention_score, and visualize_attentions were left to Me.
-
-## Specification:
-
-### get_mask_token_index:
-
-* accepts the ID of the mask token (represented as an int) and the tokenizer-generated inputs, which will be of type transformers.BatchEncoding.
-
-* It returns the index of the mask token in the input sequence of tokens. The index is 0-indexed. 
-
-* If the mask token is not present in the input sequence, the function returns None.
-
-* It's assumed that there will not be more than one mask token in the input sequence.
-
-### The get_color_for_attention_score:
-
-* Accepts an attention score (a value between 0 and 1, inclusive) and output a tuple of three integers representing an RGB triple (one red value, one green value, one blue value) for the color to use for that attention cell in the attention diagram.
-
-* If the attention score is 0, the color will be fully black (the value (0, 0, 0)). If the attention score is 1, the color will be fully white (the value (255, 255, 255)). For attention scores in between, the color will be a shade of gray that scales linearly with the attention score.
-
-### visualize_attentions:
-
-* Accepts a sequence of tokens (a list of strings) as well as attentions, which contains all the attention scores generated by the model. For each attention head, the function generates one attention visualization diagram, as by calling generate_diagram.
-
-* The value attentions is a tuple of tensors (a “tensor” can be thought of as a multidimensional array in this context).
-
-* To index into the attentions value to get a specific attention head’s values, we do so as attentions[i][j][k], where i is the index of the attention layer, j is the index of the beam number (always 0 in our case), and k is the index of the attention head in the layer.
-
-## The second part of this project is to analyze some of those attention diagrams:
-
-Theses analysis were described on the file analysis.md
-
-### analysis.md.
-
-* I described three attention heads for which I’ve identified some relationship between words that the attention head appears to have learned. 
-
-* On each case, I described what the head appears to be paying attention to and gave two or three example sentences that I fed into the model in order to reach your conclusion.
-
-* Attention heads can be noisy, so they won’t always have clear human interpretations. Sometimes they may attend to more than just the relationship I described, and sometimes they won’t identify the relationship I describe for every sentence. That’s normal. The goal here is to make inferences about attention based on our human intuition for language, not necessarily to identify exactly what each attention head’s role is.
+### Important Notes
+- Attention heads may not always align with human expectations and can sometimes exhibit noise. The goal is to make inferences based on human intuition, not to precisely define each attention head’s role.

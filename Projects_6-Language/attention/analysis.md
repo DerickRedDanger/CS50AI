@@ -2,39 +2,59 @@
 
 ## Layer 1, Head 4
 
-The head 4 from layer 1 seems to pay attention to up to 4 tokens that come before the token in question. Meanwhile, at times it only looks at the first token, it is often looking at more than one. It seems to be trying to get the context of a token by the tokens that came before it. 
+**Observation**: Head 4 from Layer 1 appears to pay attention to up to four preceding tokens, although sometimes it only focuses on the first token. It seems to be deriving the context of a token based on the tokens that precede it.
 
-For example, in the phrase 'We turned down a narrow lane and passed through a small [MASK].' when the token was 'Lane', it was paying attention to 'turned down a narrow', on the same phrase, on the token [MASK] it was paying attention to 'Passed through a small'.
+**Examples**:
+1. In the phrase "We turned down a narrow lane and passed through a small [MASK]." 
+   - When the token is "lane", it focuses on "turned down a narrow".
+   - When the token is "[MASK]", it focuses on "passed through a small".
 
-Another example being from the phrase 'Then I picked up a [MASK] from the table.' The token 'up' is paying attention to the 'I Picked', the token [MASK] is paying attention to the tokens 'I Picked up a [MASK]' and the token 'table' is paying attention to 'from the'.
+2. In the phrase "Then I picked up a [MASK] from the table."
+   - When the token is "up", it focuses on "I picked".
+   - When the token is "[MASK]", it focuses on "I picked up a [MASK]".
+   - When the token is "table", it focuses on "from the".
 
-As a last example, on the phrase 'The turtle moved slowly across the [MASK]', The tokens from 'moved' all the way to the token [MASK] are looking at the 2–4 tokens that followed it. In particular, the token [Mask] is looking at 'moved slowly across the '
+3. In the phrase "The turtle moved slowly across the [MASK]."
+   - The tokens from "moved" to "[MASK]" look at the 2-4 tokens that precede them.
+   - The token "[MASK]" specifically looks at "moved slowly across the".
 
-Example Sentences:
+**Example Sentences**:
 - We turned down a narrow lane and passed through a small [MASK].
 - Then I picked up a [MASK] from the table.
 - The turtle moved slowly across the [MASK].
 
 ## Layer 3, Head 2
 
-The head 2 from layer 3 seems to be paying attention to the relationship between token in a more meaning-wise way, trying to find their meaning together or their context, whether they are coming before or after then.
+**Observation**: Head 2 from Layer 3 appears to focus on the semantic relationships between tokens, regardless of whether they come before or after.
 
-In the phrase 'We made a very long trip around the country [MASK].', the token 'trip' is paying attention to the token 'Made', despite having the token 'a very long' between, meaning that head is likely trying to grasp the relationship or these tokens. Another example on the same phrase is the token 'country' that is paying a lot of attention to the token 'around'. Likely to get the meaning that this isn't a trip to just one part of the country, but a larger portion of it.
+**Examples**:
+1. In the phrase "We made a very long trip around the country [MASK]."
+   - The token "trip" focuses on "made", despite the intervening tokens "a very long".
+   - The token "country" focuses on "around", indicating it grasps the comprehensive nature of the trip.
 
-Another example being the phrase, 'This situation is far too much for any single [MASK] to bear alone.' The tokens 'far', 'much' and 'for' are paying a lot of attention to the token 'too', likely recognizing the intensity conveyed by that token. Meanwhile, the token 'single' is paying attention to both 'any' and [MASK], meaning it's getting that this 'single' is modifying the meaning of 'any [MASK]'; the token [MASK] is paying attention to 'any single' that modifies it and the tokens 'to' and 'bear' are paying attention to [MASK], while the token 'alone' is paying attention to both '[MASK]' and 'bear', this means the model is getting the semantic relationship between these words.
+2. In the phrase "This situation is far too much for any single [MASK] to bear alone."
+   - The tokens "far", "much", and "for" focus on "too", recognizing the intensity.
+   - The token "single" focuses on both "any" and "[MASK]", indicating it modifies the noun "[MASK]".
+   - The token "[MASK]" focuses on "any single".
+   - The tokens "to" and "bear" focus on "[MASK]".
+   - The token "alone" focuses on both "[MASK]" and "bear", showing it understands the relationship between these words.
 
-Example Sentences:
+**Example Sentences**:
 - We made a very long trip around the country [MASK].
 - This situation is far too much for any single [MASK] to bear alone.
 
 ## Layer 2, Head 7
 
-The head 7 from layer 2 seems to be paying to the tokens that modify nouns.
+**Observation**: Head 7 from Layer 2 seems to focus on tokens that modify nouns.
 
-An example of that is the phrase, 'This situation is far too much for any single [MASK] to bear alone.'. The tokens 'for any single' and 'bear alone' are all paying a lot of attention to the token [Mask], meaning the model is recognizing these tokens as modifiers of the noun that '[MASK]' represents.
+**Examples**:
+1. In the phrase "This situation is far too much for any single [MASK] to bear alone."
+   - The tokens "for any single" and "bear alone" focus heavily on "[MASK]", indicating these tokens are recognized as modifiers of the noun "[MASK]".
 
-Another example that shows this is the phrase 'He is a straightforward and caring [MASK], although quite greedy.', the tokens 'straightforward and caring [MASK]' and 'although quite' all pay a lot of attention to [Mask]. Since both phrases refer and modify [MASK], it reinforces the view that it's looking for tokens that modify nouns. One thing that eludes me in this example, is the fact that on that phrase, the token 'greedy' pays attention to 'quite greedy.' instead of [Mask], one possible answer is that it recognizes 'quite greedy' as a phrase that modifies the noun, so it's paying attention to how that phrase modifies the noun, rather than the noun itself.
+2. In the phrase "He is a straightforward and caring [MASK], although quite greedy."
+   - The tokens "straightforward and caring [MASK]" and "although quite" focus heavily on "[MASK]".
+   - The token "greedy" focuses on "quite greedy" instead of "[MASK]", possibly recognizing the phrase as a modifier of the noun.
 
-Example Sentences:
+**Example Sentences**:
 - This situation is far too much for any single [MASK] to bear alone.
 - He is a straightforward and caring [MASK], although quite greedy.
