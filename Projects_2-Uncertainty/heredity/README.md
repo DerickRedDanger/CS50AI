@@ -1,28 +1,34 @@
-# Read me
+# Heredity AI Project
 
-The problem and it's full description is avaliable in the link: 
-https://cs50.harvard.edu/ai/2024/projects/2/heredity/
+The full problem description is available at this [CS50 AI Project 2: Heredity](https://cs50.harvard.edu/ai/2024/projects/2/heredity/).
 
-## Introduction:
+## Introduction
 
-This project aim to write an AI that assess the likelihood that a person will have a particular genetic trait. That is done by assessing their parents gene (or, if we lack that knowledge, throught the inconditional probability of a person having theses genes) and utilizing join probability and Bayesian Network to find the chance of each different set up to happen. Ultimally summing and normalizing all of these chances until we find the chance of each separated gene/trait.
+This project aims to write an AI that assesses the likelihood that a person will have a particular genetic trait. This is done by evaluating their parents' genes (or, if that information is unavailable, through the unconditional probability of a person having these genes) and utilizing joint probability and Bayesian networks to determine the probability of various genetic configurations. Ultimately, the process involves summing and normalizing these probabilities to find the likelihood of each individual gene/trait.
 
-## Utilization:
+## Utilization
 
-* cd inside heredity folder.
+1. **Navigate to the heredity folder**:
+    ```bash
+    cd heredity
+    ```
+2. **Run the program**:
+    ```bash
+    python heredity.py data/family.csv
+    ```
+    (where `family` can be `family0`, `family1`, or `family2`. Each CSV contains the data of a small family).
 
-* run in the terminal: python heredity.py data/family.csv (where family can be family0,1 or 2. Each csv containing the data of a small family)
+The terminal will then display the probabilities for each family member having 0, 1, or 2 genes and the likelihood of them exhibiting the trait.
 
-* The terminal will them show the chances of each member of that family to contain 0,1 or 2 genes and the chances of them having the trait or not.
+## Background
 
-## Background:
+Mutated versions of the GJB2 gene are one of the leading causes of hearing impairment in newborns. Each person carries two copies of the gene, which means they can possess either 0, 1, or 2 copies of the hearing impairment version of GJB2. Without genetic testing, it’s difficult to determine the exact number of mutated GJB2 copies a person has. This information is a “hidden state” that affects observable traits (hearing impairment), but is not directly known. Some individuals may have 1 or 2 copies of the mutated gene without exhibiting hearing impairment, while others with no copies may still exhibit it.
 
-Mutated versions of the GJB2 gene are one of the leading causes of hearing impairment in newborns. Each person carries two versions of the gene, so each person has the potential to possess either 0, 1, or 2 copies of the hearing impairment version GJB2. Unless a person undergoes genetic testing, though, it’s not so easy to know how many copies of mutated GJB2 a person has. This is some “hidden state”: information that has an effect that we can observe (hearing impairment), but that we don’t necessarily directly know. After all, some people might have 1 or 2 copies of mutated GJB2 but not exhibit hearing impairment, while others might have no copies of mutated GJB2 yet still exhibit hearing impairment.
+Every child inherits one copy of the GJB2 gene from each parent. If a parent has two copies of the mutated gene, they will pass it on to their child. If a parent has no copies, they will not pass it on. If a parent has one copy, the gene is passed on with a probability of 0.5. After a gene is passed on, it may mutate: changing from a gene that causes hearing impairment to one that doesn’t, or vice versa.
 
-Every child inherits one copy of the GJB2 gene from each of their parents. If a parent has two copies of the mutated gene, then they will pass the mutated gene on to the child; if a parent has no copies of the mutated gene, then they will not pass the mutated gene on to the child; and if a parent has one copy of the mutated gene, then the gene is passed on to the child with probability 0.5. After a gene is passed on, though, it has some probability of undergoing additional mutation: changing from a version of the gene that causes hearing impairment to a version that doesn’t, or vice versa.
+We model these relationships using a Bayesian network. For a family with two parents and one child, the network looks like this:
 
-We can attempt to model all of these relationships by forming a Bayesian Network of all the relevant variables, as in the one below, which considers a family of two parents and a single child.
-
+```
           MotherGene               FatherGene
           {0,1,2}  |                | {0,1,2}
             |      |                |       |
@@ -36,86 +42,94 @@ We can attempt to model all of these relationships by forming a Bayesian Network
                             v
                         ChildTrait
                          {yes,no}
+```
 
-Each person in the family has a Gene random variable representing how many copies of a particular gene (e.g., the hearing impairment version of GJB2) a person has: a value that is 0, 1, or 2. Each person in the family also has a Trait random variable, which is yes or no depending on whether that person expresses a trait (e.g., hearing impairment) based on that gene. There’s an arrow from each person’s Gene variable to their Trait variable to encode the idea that a person’s genes affect the probability that they have a particular trait. Meanwhile, there’s also an arrow from both the mother and father’s Gene random variable to their child’s Gene random variable: the child’s genes are dependent on the genes of their parents.
+Each family member has a `Gene` variable representing the number of GJB2 copies (0, 1, or 2) and a `Trait` variable indicating whether they exhibit the trait (yes or no). Arrows in the network represent dependencies: a person’s genes affect their trait probability, and a child’s genes depend on their parents' genes.
 
-My task in this project is to use this model to make inferences about a population. Given information about people, who their parents are, and whether they have a particular observable trait (e.g. hearing loss) caused by a given gene, The AI will infer the probability distribution for each person’s genes, as well as the probability distribution for whether any person will exhibit the trait in question.
+My task in this project is to use this model to infer probabilities for each person's genes and traits based on given data.
 
-## Understanding:
+## Understanding
 
-This project is composed of the data folder and heredity.py.
+The project consists of a `data` folder and `heredity.py`.
 
-Data holds the csv of three families. The first row of each file defines name, mother, father and trait. The following rows contains each member of the family, it's parents and if they have exhibit the traits. Empty cells for parents or traits symbolises that we don't know if they exibit that trait or have information about their parents.
+- The `data` folder contains CSV files for three families. The first row of each file defines the name, mother, father, and trait. Subsequent rows contain family members, their parents, and trait information. Empty cells indicate unknown parent or trait information.
+  
+- `heredity.py` contains the AI logic. `PROBS` is a dictionary with constants for unconditional gene probabilities, trait probabilities based on gene count, and gene mutation probabilities.
 
-Heredity.py contains the logic for the Ai. PROBS is a dictionary containing a number of constant representing the uncoditional probability of a person having a number of genes (when we don't have information about their parents), the chance of a person exhibiting a trait depending of the number of genes they have and the probability of a gene mutating when being passed from parents to their children.
+The main function loads data from a CSV file into the `people` dictionary, which maps each person's name to another dictionary containing their information. The function also initializes a `probabilities` dictionary with all values set to 0. This dictionary stores the computed probabilities for each person's gene count and trait.
 
-Main function Loads data from a csv file into the dictionary people
+We calculate these probabilities based on evidence: given known traits, we determine the probabilities. The project involves implementing three functions: `joint_probability` to compute joint probabilities, `update` to add computed probabilities to the existing distribution, and `normalize` to ensure distributions sum to 1.
 
-People matps each person's name to another dictionary containing information about them.
+## Specification
 
-Main also defines a dictionary of probabilities, with all probabilities initially set to 0. This is what the project compute: For each person, the Ai will calculate the probability distribution over how many copies of the gene they have, as well as wheter they have the trait or not.probabilities["Harry"]["gene"][1], for example, will be the probability that Harry has 1 copy of the gene, and probabilities["Lily"]["trait"][False] will be the probability that Lily does not exhibit the trait.
+### `joint_probability`
 
-we’re looking to calculate these probabilities based on some evidence: given that we know certain people do or do not exhibit the trait, we’d like to determine these probabilities. My task in this project was to implement three functions to do just that: joint_probability to compute a joint probability, update to add the newly computed joint probability to the existing probability distribution, and then normalize to ensure all probability distributions sum to 1 at the end.
+Computes the joint probability of gene and trait configurations.
 
-## Specification:
+- **Inputs:**
+  - `people`: dictionary of family members.
+  - `one_gene`: set of people with one gene copy.
+  - `two_genes`: set of people with two gene copies.
+  - `have_trait`: set of people with the trait.
 
-### Joint_probability:
+- **Outputs:**
+  - Joint probability of the given gene and trait configurations.
 
-Takes as inpute a dictionary of people, along with data about who has how many copies of each genes, and who exhibits the trait. This function returns the join probability of all those events taking place.
+### `update`
 
-* The function accepts four inputs: people, one_gene, two_gene and have_trait.
+Adds a new joint probability to existing distributions.
 
-  * people is a dictionary of people as described in the “Understanding” section. The keys represent names, and the values are dictionaries that contain mother and father keys. 
-  * one_gene is a set of all people for whom we want to compute the probability that they have one copy of the gene.
-  * two_genes is a set of all people for whom we want to compute the probability that they have two copies of the gene.
-  * have_trait is a set of all people for whom we want to compute the probability that they have the trait.
-  * For any person not in one_gene or two_genes, we would like to calculate the probability that they have no copies of the gene; and for anyone not in have_trait, we would like to calculate the probability that they do not have the trait.
-* For anyone with no parents listed in the data set, use the probability distribution PROBS["gene"] to determine the probability that they have a particular number of the gene.
-* For anyone with parents in the data set, each parent will pass one of their two genes on to their child randomly, and there is a PROBS["mutation"] chance that it mutates (goes from being the gene to not being the gene, or vice versa).
+- **Inputs:**
+  - `probabilities`: dictionary of people and their gene/trait probabilities.
+  - `one_gene`, `two_genes`, `have_trait`: as above.
+  - `p`: computed joint probability.
 
-### Update:
+- **Outputs:**
+  - Updates the `probabilities` dictionary.
 
-adds a new joint distribution probability to the existing probability distributions in probabilities.
+### `normalize`
 
-* accepts five values as inputs:probabilities, one_gene, two_genes, have_trait, and p.
-  * probabilities is a dictionary of people as described in the “Understanding” section. Each person is mapped to a "gene" distribution and a "trait" distribution.
-  * p is the probability returned from the joint distribution.
-* For each person person in probabilities, the function should update the probabilities[person]["gene"] distribution and probabilities[person]["trait"] distribution by adding p to the appropriate value in each distribution. All other values should be left unchanged.
-* The function does not return any value: it just updates the probabilities dictionary.
+Normalizes probability distributions so they sum to 1.
 
-### Normalize:
-updates a dictionary of probabilities such that each probability distribution is normalized (i.e., sums to 1, with relative proportions the same).
-* This functions accepts a single value: Probabilities
-* For both of the distributions for each person in probabilities, this function normalize that distribution so that the values in the distribution sum to 1, and the relative values in the distribution are the same.
-* The function does not return any value: it just updates the probabilities dictionary.
+- **Inputs:**
+  - `probabilities`: dictionary of people and their gene/trait probabilities.
 
-## Example of joint probabilty:
-To help you understand how joint probabilities is calculated, I’ve included below the example from Cs50Ai.
+- **Outputs:**
+  - Updates the `probabilities` dictionary.
 
-Consider the following value for people:
+## Example of Joint Probability
 
-    {
-      'Harry': {'name': 'Harry', 'mother': 'Lily', 'father': 'James', 'trait': None},
+Consider the following `people` dictionary:
 
-    'James': {'name': 'James', 'mother': None, 'father': None, 'trait': True},
+```python
+{
+  'Harry': {'name': 'Harry', 'mother': 'Lily', 'father': 'James', 'trait': None},
+  'James': {'name': 'James', 'mother': None, 'father': None, 'trait': True},
+  'Lily': {'name': 'Lily', 'mother': None, 'father': None, 'trait': False}
+}
+```
 
-    'Lily': {'name': 'Lily', 'mother': None, 'father': None, 'trait': False}
-      }
+We calculate `joint_probability(people, {"Harry"}, {"James"}, {"James"})`. This represents the probability that:
+- Lily has 0 copies of the gene and does not have the trait.
+- Harry has 1 copy of the gene and does not have the trait.
+- James has 2 copies of the gene and has the trait.
 
-We will here show the calculation of joint_probability(people, {"Harry"}, {"James"}, {"James"}). Based on the arguments, one_gene is {"Harry"}, two_genes is {"James"}, and have_trait is {"James"}. This therefore represents the probability that: Lily has 0 copies of the gene and does not have the trait, Harry has 1 copy of the gene and does not have the trait, and James has 2 copies of the gene and does have the trait.
+1. **Lily:**
+   - Probability of 0 copies: 0.96 (PROBS["gene"][0])
+   - Probability of no trait: 0.99 (PROBS["trait"][0][False])
+   - Joint probability: 0.96 * 0.99 = 0.9504
 
-We start with Lily (the order that we consider people does not matter, so long as we multiply the correct values together, since multiplication is commutative). Lily has 0 copies of the gene with probability 0.96 (this is PROBS["gene"][0]). Given that she has 0 copies of the gene, she doesn’t have the trait with probability 0.99 (this is PROBS["trait"][0][False]). Thus, the probability that she has 0 copies of the gene and she doesn’t have the trait is 0.96 * 0.99 = 0.9504.
+2. **James:**
+   - Probability of 2 copies: 0.01 (PROBS["gene"][2])
+   - Probability of trait: 0.65 (PROBS["trait"][2][True])
+   - Joint probability: 0.01 * 0.65 = 0.0065
 
-Next, we consider James. James has 2 copies of the gene with probability 0.01 (this is PROBS["gene"][2]). Given that he has 2 copies of the gene, the probability that he does have the trait is 0.65. Thus, the probability that he has 2 copies of the gene and he does have the trait is 0.01 * 0.65 = 0.0065.
+3. **Harry:**
+   - Probability of 1 copy: 0.9802 (from mutation and inheritance probabilities)
+   - Probability of no trait: 0.44 (PROBS["trait"][1][False])
+   - Joint probability: 0.9802 * 0.44 = 0.431288
 
-Finally, we consider Harry. What’s the probability that Harry has 1 copy of the gene? There are two ways this can happen. Either he gets the gene from his mother and not his father, or he gets the gene from his father and not his mother. 
+**Overall joint probability:** 0.9504 * 0.0065 * 0.431288 = 0.0026643247488
+```
 
-His mother Lily has 0 copies of the gene, so Harry will get the gene from his mother with probability 0.01 (this is PROBS["mutation"]), since the only way to get the gene from his mother is if it mutated; conversely, Harry will not get the gene from his mother with probability 0.99. 
-
-His father James has 2 copies of the gene, so Harry will get the gene from his father with probability 0.99 (this is 1 - PROBS["mutation"]), but will get the gene from his mother with probability 0.01 (the chance of a mutation). 
-
-Both of these cases can be added together to get 0.99 * 0.99 + 0.01 * 0.01 = 0.9802, the probability that Harry has 1 copy of the gene.
-
-Given that Harry has 1 copy of the gene, the probability that he does not have the trait is 0.44 (this is PROBS["trait"][1][False]). So the probability that Harry has 1 copy of the gene and does not have the trait is 0.9802 * 0.44 = 0.431288.
-
-Therefore, the entire joint probability is just the result of multiplying all of these values for each of the three people: 0.9504 * 0.0065 * 0.431288 = 0.0026643247488.
+Feel free to make any additional changes or let me know if there's anything else you'd like to include!

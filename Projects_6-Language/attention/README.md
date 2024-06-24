@@ -60,3 +60,6 @@ The second part of this project involves analyzing the generated attention diagr
 
 ### Important Notes
 - Attention heads may not always align with human expectations and can sometimes exhibit noise. The goal is to make inferences based on human intuition, not to precisely define each attention head’s role.
+```
+
+Feel free to make any additional changes or let me know if there's anything else you'd like to include!
