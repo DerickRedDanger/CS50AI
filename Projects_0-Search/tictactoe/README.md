@@ -160,3 +160,6 @@ For example, instead of just using 1 for X's win and -1 for O's win, we could re
 
 Considering the simplicity of the game, I expect the difference in the AI's behavior to be minor. Since CS50 specified that `utility` should return 1, 0, or -1, I didn't actually try it.
 
+```
+
+Feel free to make any additional changes or let me know if there's anything else you'd like to include!
