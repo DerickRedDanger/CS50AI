@@ -111,7 +111,7 @@ def shortest_path(source, target):
     actors_explored.add(start)
 
     # Looping inside all of Movie_children/Person_chieldren pair of the source actor
-    # In other world, looping inside the pair that contain the movie the actor starred and another actor presente in the same movie
+    # In other world, looping inside the pair that contain the movie the actor starred and another actor present in the same movie
     for movie_person_pair in start.movie_children:
 
         # If the actor is not the target, and not in the explored list, 
@@ -121,6 +121,7 @@ def shortest_path(source, target):
                 node = Node(movie_person_pair[1], start, movie_person_pair[0], neighbors_for_person(movie_person_pair[1]), (start.level+1))
                 Queue.add(node)
                 actors_explored.add(movie_person_pair[1])
+
         # If the actor is the target, append the pair to shortest and return it.
         else:
             shortest = []
@@ -154,7 +155,7 @@ def shortest_path(source, target):
                     actors_explored.add(movie_person_pair[1])
 
             # If the target is found, appent the pair to shortest, backtrack throught it's parents
-            # appending their pair till reaching the source Actor, then revert the shortest order and return
+            # appending their pair until reaching the source Actor, then revert the shortest order and return
             else:
                 shortest = []
                 shortest.append(movie_person_pair)
@@ -166,13 +167,13 @@ def shortest_path(source, target):
 
                     else:
                         shortest.reverse()
-                        #  to keep tract of how long it took for the code to run
+                        # to keep tract of how long it took for the code to run
                         end_time = time.time()
                         print(f"Total time of running the code = {end_time - start_time}")
                         return shortest
                     x += 1
 
-    #  to keep tract of how long it took for the code to run
+    # to keep tract of how long it took for the code to run
     end_time = time.time()
     print(f"Total time of running the code = {end_time - start_time}")
 
