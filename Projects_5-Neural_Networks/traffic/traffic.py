@@ -107,7 +107,7 @@ def get_model():
         tf.keras.layers.AveragePooling2D(pool_size=(3, 3)),
 
 
-        # Convolutional layer. Learn 96 filters using a 3x3 kernel
+        # Convolutional layer. Learn 258 filters using a 3x3 kernel
         tf.keras.layers.Conv2D(
             258, (3, 3), activation="sigmoid"
         ),
